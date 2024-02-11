@@ -1,31 +1,51 @@
 package controllers
 
 import (
-	"net/http"
 	"encoding/json"
 	"log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"context"
 	"fmt"
 )
 // TODO move to models
 type Project struct {
-	_ID 			string	 `json:"_id"`
+	_ID 		string	 `json:"_id"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
+	Category 	string   `json:"category"`
 	Tags        []string `json:"tags"`
 	// DateCreated string
 	// Members []string
 	// Location    string   `json:"location"`
 }
+func (env *Env) GetProjectByID(id string) []byte {
+	var result Project
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	filter := bson.M{"_id": objId}
+	err = env.DB.Collection("projects").FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	jsonResponse, err := json.Marshal(result)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return jsonResponse
 
-func (env *Env) GetSampleProjects(w http.ResponseWriter, r *http.Request) {
+}
 
+func (env *Env) GetProjectsByFilter(filterField string) []byte {
+	// TODO: filter should be struct like Project struct
 	var results []Project
 	findOptions := options.Find()
-	findOptions.SetLimit(20)
-	cursor, err := env.DB.Collection("projects").Find(context.TODO(), bson.D{{}}, findOptions)
+	findOptions.SetLimit(20) // TODO: paginate properly
+	filter := bson.M{"category": filterField}
+	cursor, err := env.DB.Collection("projects").Find(context.TODO(), filter, findOptions)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("error finding projects: %s", err))
 	}
@@ -40,11 +60,10 @@ func (env *Env) GetSampleProjects(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonResponse, err := json.Marshal(results)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		// TODO: handle error properly
+		// http.Error(w, err.Error(), http.StatusInternalServerError)\
+		log.Fatal(err)
+		// return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResponse)
-
+	return jsonResponse
 }

@@ -3,36 +3,38 @@ package routes
 import (
 	"net/http"
 	"github.com/bfbarry/CollabSource/back-end/server"
+	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"fmt"
 )
 
 type UserRoutes struct {
-	Routes []server.Endpoint
+	routes []server.Endpoint // TODO make this private
 }
 
 func (userRoutes UserRoutes) GetRoutes() []server.Endpoint {
-	return userRoutes.Routes
+	return userRoutes.routes
 }
 
-func BuildUserRoutes() UserRoutes {
+func BuildUserRoutes(env *controllers.Env) UserRoutes {
 	userRoutes := UserRoutes{}
-	userRoutes.Routes = initiateRoutes()
+	userRoutes.routes = initiateUserRoutes(env)
 	return userRoutes
 }
 
-func initiateRoutes() []server.Endpoint{
+func initiateUserRoutes(env *controllers.Env) []server.Endpoint{
 	endpoints := []server.Endpoint{}
-	endpoints = append(endpoints, server.Endpoint{Path:"/user", Handler:getUserByID})
+	routeEnv := RouteEnv{controllersEnv: env}
+	endpoints = append(endpoints, server.Endpoint{Path:"/user", Handler:routeEnv.getUserByID})
 
 	return endpoints
 }
 
-func getUserByID(w http.ResponseWriter, r *http.Request) {
+func (re *RouteEnv) getUserByID(w http.ResponseWriter, r *http.Request) {
 	// TODO switch statment 
 	fmt.Fprintf(w, "Hi there, I love you!")
 }
 
-func user(w http.ResponseWriter, r *http.Request) {
+func (re *RouteEnv) user(w http.ResponseWriter, r *http.Request) {
 	// TODO switch statment 
 	fmt.Fprintf(w, "Hi there, I love you!")
 }
