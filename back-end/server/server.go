@@ -32,7 +32,7 @@ func CreateNewServer() *Server{
 	server.mux = http.NewServeMux()
 	
 	client, db := connections.InitDB()
-	env := &controllers.Env{DB: db}
+	env := &controllers.Env{DB: db} // TODO: this should be a pointer
 	server.Env = env
 	server.mongoClient = client
 	return &server

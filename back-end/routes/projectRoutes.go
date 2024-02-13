@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
-	"fmt"
+
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"github.com/bfbarry/CollabSource/back-end/server"
 	// "fmt"
@@ -24,10 +26,11 @@ func BuildProjectRoutes(env *controllers.Env) ProjectRoutes {
 	}
 	return projectRoutes
 }
-
+// TODO: TODAY move controlers.Env to connections
 func initiateProjectRoutes(env *controllers.Env) []server.Endpoint{
 	endpoints := []server.Endpoint{}
-	routeEnv := RouteEnv{controllersEnv: env}
+	conEnv := &controllers.ProjectEnv{Coll: env.DB.Collection("projects")}
+	routeEnv := RouteEnv{controllersEnv: conEnv}
 	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/get_one/", BASE_URL), Handler: routeEnv.getOneProject})
 	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/get_many", BASE_URL), Handler: routeEnv.getManyProjects})
 
@@ -54,6 +57,14 @@ func (re *RouteEnv) getManyProjects(w http.ResponseWriter, r *http.Request) {
 
 func (re *RouteEnv) createProject(w http.ResponseWriter, r *http.Request) {
 
+	var p controllers.Project
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	jsonResponse := re.controllersEnv.CreateProject(p)
+	w.Write(jsonResponse)
 }
 
 func (re *RouteEnv) updateProject(w http.ResponseWriter, r *http.Request) {

@@ -7,5 +7,5 @@ import (
 type RouteEnv struct {
 	// this struct allows us to compose route handlers with controllers.Env, which
 	// contains database connection, and controller methods
-	controllersEnv *controllers.Env
+	controllersEnv *controllers.ProjectEnv
 }

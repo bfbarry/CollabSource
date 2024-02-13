@@ -23,7 +23,8 @@ func BuildUserRoutes(env *controllers.Env) UserRoutes {
 
 func initiateUserRoutes(env *controllers.Env) []server.Endpoint{
 	endpoints := []server.Endpoint{}
-	routeEnv := RouteEnv{controllersEnv: env}
+	conEnv := &controllers.ProjectEnv{Coll: env.DB.Collection("projects")}
+	routeEnv := RouteEnv{controllersEnv: conEnv}
 	endpoints = append(endpoints, server.Endpoint{Path:"/user", Handler:routeEnv.getUserByID})
 
 	return endpoints
