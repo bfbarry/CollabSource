@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"github.com/bfbarry/CollabSource/back-end/server"
+	"github.com/bfbarry/CollabSource/back-end/connections"
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"fmt"
 )
@@ -15,13 +16,13 @@ func (userRoutes UserRoutes) GetRoutes() []server.Endpoint {
 	return userRoutes.routes
 }
 
-func BuildUserRoutes(env *controllers.Env) UserRoutes {
+func BuildUserRoutes(env *connections.Env) UserRoutes {
 	userRoutes := UserRoutes{}
 	userRoutes.routes = initiateUserRoutes(env)
 	return userRoutes
 }
 
-func initiateUserRoutes(env *controllers.Env) []server.Endpoint{
+func initiateUserRoutes(env *connections.Env) []server.Endpoint{
 	endpoints := []server.Endpoint{}
 	conEnv := &controllers.ProjectEnv{Coll: env.DB.Collection("projects")}
 	routeEnv := RouteEnv{controllersEnv: conEnv}

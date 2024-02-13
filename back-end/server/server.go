@@ -7,7 +7,6 @@ import (
 	"errors"
 	"os"
 	"github.com/bfbarry/CollabSource/back-end/connections"
-	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"go.mongodb.org/mongo-driver/mongo"
 
 )
@@ -23,7 +22,7 @@ type Routes interface {
 
 type Server struct {
 	mux *http.ServeMux
-	Env *controllers.Env
+	Env *connections.Env
 	mongoClient *mongo.Client
 }
 
@@ -32,7 +31,7 @@ func CreateNewServer() *Server{
 	server.mux = http.NewServeMux()
 	
 	client, db := connections.InitDB()
-	env := &controllers.Env{DB: db} // TODO: this should be a pointer
+	env := &connections.Env{DB: db}
 	server.Env = env
 	server.mongoClient = client
 	return &server

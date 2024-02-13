@@ -10,6 +10,11 @@ import (
 	"log"
 )
 
+// thanks https://www.alexedwards.net/blog/organising-database-access
+// used for dependency injection
+type Env struct {
+	DB *mongo.Database
+}
 
 func InitDB() (*mongo.Client, *mongo.Database) {
 	DBNAME := "CollabSourceDev0"

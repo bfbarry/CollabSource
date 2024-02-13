@@ -10,16 +10,16 @@ import (
 	"context"
 	"fmt"
 )
-// TODO move to models
 type ProjectEnv struct {
 	Coll  *mongo.Collection
 }
 
+// TODO move to models
 type Project struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Category 	string   `json:"category"`
-	Tags        []string `json:"tags"`
+	Name        string   `json:"name"        bson:"name,omitempty"`
+	Description string   `json:"description" bson:"description,omitempty"`
+	Category 	string   `json:"category"    bson:"category,omitempty"`
+	Tags        []string `json:"tags"        bson:"tags,omitempty"`
 	// DateCreated string
 	// Members []string
 	// Location    string   `json:"location"`
@@ -75,5 +75,43 @@ func (env *ProjectEnv) GetProjectsByFilter(filterField string) []byte {
 func (env *ProjectEnv) CreateProject(p Project) []byte {
 	// TODO: abstract away db
 	env.Coll.InsertOne(context.TODO(), p)
+	return []byte("success")
+}
+
+func (env *ProjectEnv) UpdateProject(id string, p Project) []byte {
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := env.Coll.UpdateOne(context.TODO(), bson.M{"_id": objId}, bson.M{"$set": p})
+	if err != nil {	
+		log.Fatal(err)
+	}
+	jsonResponse, err := json.Marshal(res)
+	if err != nil {
+		// TODO: handle error properly
+		// http.Error(w, err.Error(), http.StatusInternalServerError)\
+		log.Fatal(err)
+		// return
+	}
+	return jsonResponse
+}
+
+func (env *ProjectEnv) DeleteProject(deleteMode DeleteMode, id string) []byte {
+	objId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var err2 error
+	switch deleteMode {
+		case SoftDelete:
+			_, err2 = env.Coll.UpdateOne(context.TODO(), bson.M{"_id": objId}, bson.M{"$set": bson.M{"deleted": true}})
+		case HardDelete:
+			_, err2 = env.Coll.DeleteOne(context.TODO(), bson.M{"_id": objId})
+		}
+	if err2 != nil {	
+		log.Fatal(err)
+	}
+
 	return []byte("success")
 }
