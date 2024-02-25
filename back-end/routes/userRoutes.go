@@ -3,40 +3,51 @@ package routes
 import (
 	"net/http"
 	"github.com/bfbarry/CollabSource/back-end/server"
-	"github.com/bfbarry/CollabSource/back-end/connections"
 	"github.com/bfbarry/CollabSource/back-end/controllers"
-	"fmt"
 )
 
 type UserRoutes struct {
-	routes []server.Endpoint // TODO make this private
+	routes []server.Endpoint
+	userHandler controllers.UserHandler
 }
 
 func (userRoutes UserRoutes) GetRoutes() []server.Endpoint {
 	return userRoutes.routes
 }
 
-func BuildUserRoutes(env *connections.Env) UserRoutes {
+func BuildUserRoutes() UserRoutes {
 	userRoutes := UserRoutes{}
-	userRoutes.routes = initiateUserRoutes(env)
+	userRoutes.userHandler = controllers.BuildUserHandler()
+	userRoutes.routes = initiateUserRoutes(userRoutes)
+
 	return userRoutes
 }
 
-func initiateUserRoutes(env *connections.Env) []server.Endpoint{
+func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
 	endpoints := []server.Endpoint{}
-	conEnv := &controllers.ProjectEnv{Coll: env.DB.Collection("projects")}
-	routeEnv := RouteEnv{controllersEnv: conEnv}
-	endpoints = append(endpoints, server.Endpoint{Path:"/user", Handler:routeEnv.getUserByID})
+	endpoints = append(endpoints, server.Endpoint{Path:"/users", Handler:userRoutes.users})
+	endpoints = append(endpoints, server.Endpoint{Path:"/user/{id}", Handler:userRoutes.user})
 
 	return endpoints
 }
 
-func (re *RouteEnv) getUserByID(w http.ResponseWriter, r *http.Request) {
-	// TODO switch statment 
-	fmt.Fprintf(w, "Hi there, I love you!")
+func (userRoutes UserRoutes) users(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		userRoutes.userHandler.GetAllUsers()
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
 }
 
-func (re *RouteEnv) user(w http.ResponseWriter, r *http.Request) {
-	// TODO switch statment 
-	fmt.Fprintf(w, "Hi there, I love you!")
+func (userRoutes UserRoutes) user(w http.ResponseWriter, r *http.Request) {
+	//bad url parm return 400
+	switch r.Method {
+	case http.MethodGet:
+		userRoutes.userHandler.GetUser()
+	case http.MethodPost:
+		userRoutes.userHandler.CreateUser()
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
 }
