@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log"
 
@@ -67,24 +66,15 @@ func (self *Repository) FindByID(coll string, id string) (model.Model, error) {
 	return obj, nil
 }
 
-func cursorToSlice(cursor *mongo.Cursor, coll string) []model.Model {
-	var results []model.Model
-	for cursor.Next(context.TODO()) {
-		elem := model.GetModelFromName(coll)
-		err := cursor.Decode(elem)
-		if err != nil {
-			log.Fatal(err)
-		}
-		results = append(results, elem)
-	}
-	return results
-}
-
 //filter e.g, bson.M{"category": filterField}
+//		bson.M{} for no filter
 // TODO: filter should be struct like Project struct
-func (self *Repository) FindByQuery(coll string, filter bson.M) ([]model.Model, error){
+
+func (self *Repository) Find(coll string, filter bson.M, pageNumber int64, pageSize int64) ([]model.Model, error){
 	findOptions := options.Find()
-	findOptions.SetLimit(20) // TODO: paginate properly
+	skip := (pageNumber - 1) * pageSize
+	findOptions.SetSkip(skip)
+	findOptions.SetLimit(pageSize)
 	cursor, err := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if err != nil {
 		log.Println(err)
@@ -93,25 +83,6 @@ func (self *Repository) FindByQuery(coll string, filter bson.M) ([]model.Model, 
 
 	results := cursorToSlice(cursor, coll)
 	return results, nil
-}
-
-func (self *Repository) FindAll(coll string) []byte {
-	findOptions := options.Find()
-	findOptions.SetLimit(20) // TODO: paginate properly
-	cursor, err := self.getCollection(coll).Find(context.TODO(), bson.M{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	results := cursorToSlice(cursor, coll)
-	jsonResponse, err := json.Marshal(results)
-	if err != nil {
-		// TODO: handle error properly
-		// http.Error(w, err.Error(), http.StatusInternalServerError)\
-		log.Fatal(err)
-		// return
-	}
-	return jsonResponse
 }
 
 func (self *Repository) Update(coll string, obj model.Model, id string) ([]byte, error) {
