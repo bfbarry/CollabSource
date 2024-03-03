@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/bfbarry/CollabSource/back-end/repository"
+	"github.com/bfbarry/CollabSource/back-end/model"
 	"fmt"
 )
 
@@ -21,10 +22,11 @@ func (self *UserHandler) GetAllUsers(){
 	self.repository.FindAll(userCollection)
 }
 
-func (self *UserHandler) GetUser(){
-	self.repository.FindOne(userCollection)
+func (self *UserHandler) GetUser(id string){
+	self.repository.FindByID(userCollection ,id)
 }
 
 func (self *UserHandler) CreateUser(){
-	self.repository.Insert(userCollection)
+	u := model.User{} // TODO
+	self.repository.Insert(userCollection, u)
 }

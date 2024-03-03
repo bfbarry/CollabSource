@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bfbarry/CollabSource/back-end/connections"
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"github.com/bfbarry/CollabSource/back-end/server"
 	// "fmt"

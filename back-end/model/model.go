@@ -17,3 +17,21 @@ type Project struct {
 	// Location    string   `json:"location"`
 }
 
+func NewProject() *Project {
+	return &Project{}
+}
+
+func NewUser() *User {
+	return &User{}
+}
+
+func GetModelFromName(name string) Model {
+	switch name {
+		case "project":
+			return NewProject()
+		case "user":
+			return NewUser()
+		default:
+			return nil
+	}
+}

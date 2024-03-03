@@ -22,7 +22,6 @@ func BuildUserRoutes() UserRoutes {
 
 	return userRoutes
 }
-
 func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
 	endpoints := []server.Endpoint{}
 	endpoints = append(endpoints, server.Endpoint{Path:"/users", Handler:userRoutes.users})
@@ -44,7 +43,7 @@ func (userRoutes UserRoutes) user(w http.ResponseWriter, r *http.Request) {
 	//bad url parm return 400
 	switch r.Method {
 	case http.MethodGet:
-		userRoutes.userHandler.GetUser()
+		userRoutes.userHandler.GetUser(" ID HERE ")
 	case http.MethodPost:
 		userRoutes.userHandler.CreateUser()
 	default:

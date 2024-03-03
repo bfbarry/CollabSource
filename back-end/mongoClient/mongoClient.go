@@ -7,14 +7,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"fmt"
+	"os"
 )
 
-const uri = "mongodb://localhost:27017"
+var mongoClient *mongo.Client
+var dbName string
 
-var mongoClient *mongo.Client;
-
-func InitilizeMongoClient() {
-
+func init() {
+	uri := os.Getenv("MONGODB_URI")
+	dbName = os.Getenv("MONGODB_DB")
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
@@ -24,11 +25,11 @@ func InitilizeMongoClient() {
 		panic(err)
 	}
 	
-	log.Println("Successfully connected to mongo at %s",uri)
+	log.Printf("Successfully connected to mongo at %s",uri)
 
 	var result bson.M
-	if err := client.Database("test").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
-		panic(err)
+	if err := GetMongoClient().RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
+		log.Fatal(err)
 	}
 	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 
@@ -39,11 +40,11 @@ func InitilizeMongoClient() {
 func CloseMongoClient() {
 	if err := mongoClient.Disconnect(context.TODO()); err != nil {
 		log.Println("error closing mongodb connection")
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
 func GetMongoClient() *mongo.Database{
-	return mongoClient.Database("test")
+	return mongoClient.Database(dbName)
 }
 
