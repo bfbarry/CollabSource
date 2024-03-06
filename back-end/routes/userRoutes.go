@@ -34,7 +34,7 @@ func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
 func (userRoutes UserRoutes) users(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		userRoutes.userHandler.GetAllUsers()
+		// userRoutes.userHandler.GetAllUsers()
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
@@ -44,9 +44,9 @@ func (userRoutes UserRoutes) user(w http.ResponseWriter, r *http.Request) {
 	//bad url parm return 400
 	switch r.Method {
 	case http.MethodGet:
-		userRoutes.userHandler.GetUser()
-	case http.MethodPost:
-		userRoutes.userHandler.CreateUser()
+		userRoutes.userHandler.GetUser(" ID HERE ")
+	// case http.MethodPost:
+	// 	userRoutes.userHandler.CreateUser()
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}

@@ -5,45 +5,47 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/bson"
+	"github.com/joho/godotenv"
 	"log"
 	"fmt"
+	"os"
 )
 
-const uri = "mongodb://localhost:27017"
+var mongoClient *mongo.Client
+var dbName string
 
-var mongoClient *mongo.Client;
-
-func InitilizeMongoClient() {
-
+func init() {
+	if err := godotenv.Load(); err != nil {
+        log.Fatal("Error loading .env file")
+    }
+	uri := os.Getenv("MONGODB_URI")
+	dbName = os.Getenv("MONGODB_DB")
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
-		log.Println("error connecting to mongodb, will exit program")
-		panic(err)
+		log.Fatal("error connecting to mongodb, will exit program")
 	}
 	
-	log.Println("Successfully connected to mongo at %s",uri)
-
-	var result bson.M
-	if err := client.Database("test").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
-		panic(err)
-	}
-	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
-
+	log.Printf("Successfully connected to mongo at %s",uri)
 	mongoClient = client
 
+	var result bson.M
+	if err := GetMongoDb().RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
+		log.Fatalf("Error in ping %s", err)
+	}
+	fmt.Println("Pinged your deployment. You successfully connected to MongoDB!")
 }
 
-func CloseMongoClient() {
+func ClosemongoClient() {
 	if err := mongoClient.Disconnect(context.TODO()); err != nil {
 		log.Println("error closing mongodb connection")
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
-func GetMongoClient() *mongo.Database{
-	return mongoClient.Database("test")
+func GetMongoDb() *mongo.Database{
+	return mongoClient.Database(dbName)
 }
 

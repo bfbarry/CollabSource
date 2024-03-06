@@ -2,116 +2,71 @@ package controllers
 
 import (
 	"encoding/json"
+	"io"
 	"log"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"context"
-	"fmt"
+
+	"github.com/bfbarry/CollabSource/back-end/repository"
 )
-type ProjectEnv struct {
-	Coll  *mongo.Collection
+
+const projectCollection = "projects"
+
+type ProjectHandler struct {
+	repository *repository.Repository
 }
 
-// TODO move to models
-type Project struct {
-	Name        string   `json:"name"        bson:"name,omitempty"`
-	Description string   `json:"description" bson:"description,omitempty"`
-	Category 	string   `json:"category"    bson:"category,omitempty"`
-	Tags        []string `json:"tags"        bson:"tags,omitempty"`
-	// DateCreated string
-	// Members []string
-	// Location    string   `json:"location"`
+func BuildProjectHandler() *ProjectHandler {
+	log.Println("Building project handler")
+	projectHandler := &ProjectHandler{repository: repository.GetMongoRepository()}
+	return projectHandler
 }
-func (env *ProjectEnv) GetProjectByID(id string) []byte {
-	var result Project
-	objId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatal(err)
+
+func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) ([]byte, error) {
+	msg, err := self.repository.Insert(projectCollection, streamObj)
+	if err != nil {	
+		return nil, err
 	}
-	filter := bson.M{"_id": objId}
-	err = env.Coll.FindOne(context.TODO(), filter).Decode(&result)
-	if err != nil {
-		log.Fatal(err)
+	// TODO: get id and return obj
+	return msg, nil
+}
+
+func (self *ProjectHandler) GetProjectByID(id string) ([]byte, error) {
+	result, err := self.repository.FindByID(projectCollection, id)
+	if err != nil { // TODO: 400
+		return nil, err
 	}
 	jsonResponse, err := json.Marshal(result)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return jsonResponse
 
+	if err != nil { // TODO: 500
+		return nil, err
+	}
+	return jsonResponse, nil
 }
 
-func (env *ProjectEnv) GetProjectsByFilter(filterField string) []byte {
-	// TODO: filter should be struct like Project struct
-	var results []Project
-	findOptions := options.Find()
-	findOptions.SetLimit(20) // TODO: paginate properly
-	filter := bson.M{"category": filterField}
-	cursor, err := env.Coll.Find(context.TODO(), filter, findOptions)
+func (self *ProjectHandler) GetProjectsByFilter(streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) ([]byte, error) {
+	results, err := self.repository.Find(projectCollection, streamFilterObj, 0, 10)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("error finding projects: %s", err))
-	}
-
-	for cursor.Next(context.TODO())  {
-		var elem Project
-		err := cursor.Decode(&elem)
-		if err != nil {
-			log.Fatal(err)
-		}
-		results = append(results, elem)
+		return nil, err
 	}
 	jsonResponse, err := json.Marshal(results)
-	if err != nil {
-		// TODO: handle error properly
-		// http.Error(w, err.Error(), http.StatusInternalServerError)\
-		log.Fatal(err)
-		// return
+	if err != nil { // TODO: 500
+		return nil, err
 	}
-	return jsonResponse
+	return jsonResponse, nil
 }
 
-func (env *ProjectEnv) CreateProject(p Project) []byte {
-	// TODO: abstract away db
-	env.Coll.InsertOne(context.TODO(), p)
-	return []byte("success")
+func (self *ProjectHandler) UpdateProject(id string, streamObj *io.ReadCloser) ([]byte, error) {
+	var err error
+	_, err = self.repository.Update(projectCollection, streamObj, id)
+	if err != nil {
+		return nil, err
+	}
+	return []byte("success"), nil
 }
 
-func (env *ProjectEnv) UpdateProject(id string, p Project) []byte {
-	objId, err := primitive.ObjectIDFromHex(id)
+func (self *ProjectHandler) DeleteProject(deleteMode repository.DeleteMode, id string) ([]byte, error) {
+	msg, err := self.repository.Delete(projectCollection, deleteMode, id)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	res, err := env.Coll.UpdateOne(context.TODO(), bson.M{"_id": objId}, bson.M{"$set": p})
-	if err != nil {	
-		log.Fatal(err)
-	}
-	jsonResponse, err := json.Marshal(res)
-	if err != nil {
-		// TODO: handle error properly
-		// http.Error(w, err.Error(), http.StatusInternalServerError)\
-		log.Fatal(err)
-		// return
-	}
-	return jsonResponse
-}
-
-func (env *ProjectEnv) DeleteProject(deleteMode DeleteMode, id string) []byte {
-	objId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var err2 error
-	switch deleteMode {
-		case SoftDelete:
-			_, err2 = env.Coll.UpdateOne(context.TODO(), bson.M{"_id": objId}, bson.M{"$set": bson.M{"deleted": true}})
-		case HardDelete:
-			_, err2 = env.Coll.DeleteOne(context.TODO(), bson.M{"_id": objId})
-		}
-	if err2 != nil {	
-		log.Fatal(err)
-	}
-
-	return []byte("success")
+	return msg, nil
 }
