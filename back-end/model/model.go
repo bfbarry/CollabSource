@@ -8,6 +8,7 @@ type User struct {
 }
 
 type Project struct {
+	// Id        string   `json:"_id"        bson:"_id,omitempty"`
 	Name        string   `json:"name"        bson:"name,omitempty"`
 	Description string   `json:"description" bson:"description,omitempty"`
 	Category 	string   `json:"category"    bson:"category,omitempty"`
@@ -17,20 +18,13 @@ type Project struct {
 	// Location    string   `json:"location"`
 }
 
-func NewProject() *Project {
-	return &Project{}
-}
-
-func NewUser() *User {
-	return &User{}
-}
-
-func GetModelFromName(name string) Model {
+func GetModelFromName(name string) interface{} {
+	//note: this returns a model pointer
 	switch name {
-		case "project":
-			return NewProject()
-		case "user":
-			return NewUser()
+		case "projects":
+			return &Project{}
+		case "users":
+			return &User{}
 		default:
 			return nil
 	}

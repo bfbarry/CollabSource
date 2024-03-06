@@ -22,6 +22,7 @@ func BuildUserRoutes() UserRoutes {
 
 	return userRoutes
 }
+
 func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
 	endpoints := []server.Endpoint{}
 	endpoints = append(endpoints, server.Endpoint{Path:"/users", Handler:userRoutes.users})
@@ -33,7 +34,7 @@ func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
 func (userRoutes UserRoutes) users(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		userRoutes.userHandler.GetAllUsers()
+		// userRoutes.userHandler.GetAllUsers()
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
@@ -44,8 +45,8 @@ func (userRoutes UserRoutes) user(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		userRoutes.userHandler.GetUser(" ID HERE ")
-	case http.MethodPost:
-		userRoutes.userHandler.CreateUser()
+	// case http.MethodPost:
+	// 	userRoutes.userHandler.CreateUser()
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}

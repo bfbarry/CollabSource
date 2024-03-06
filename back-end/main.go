@@ -1,20 +1,21 @@
 package main
 
 import (
-	"github.com/bfbarry/CollabSource/back-end/server"
+	"log"
+
 	"github.com/bfbarry/CollabSource/back-end/routes"
+	"github.com/bfbarry/CollabSource/back-end/server"
 )
 
 func main() {
-	
+	log.SetFlags(log.LstdFlags)
 	// Initilize a web server
 	server := server.CreateNewServer()
 
 	// Build and register all routes
-	userRoutes := routes.BuildUserRoutes()
-	server.RegisterRoutes(userRoutes)
-	//// projectRoutes := routes.BuildProjectRoutes(server.Env)
-	//// server.RegisterRoutes(projectRoutes)
+	// userRoutes := routes.BuildUserRoutes()
+	// server.RegisterRoutes(userRoutes)
+	server.RegisterRoutes(routes.DefaultProjectRoutes)
 
 	// Start server
 	server.StartServer()

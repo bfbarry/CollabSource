@@ -40,7 +40,7 @@ func CreateNewServer() *Server{
 func (s *Server) StartServer() {
 	portNum := 8080
 	// defer connections.CloseDB(s.mongoClient)() // TODO: verify pattern
-	// log.Printf("listening on :%d\n", portNum)
+	log.Printf("listening on :%d\n", portNum)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", portNum), s.mux)
 	// log.Println("closed")
 	if errors.Is(err, http.ErrServerClosed) {
