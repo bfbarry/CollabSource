@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"net/http"
 
+	"github.com/bfbarry/CollabSource/back-end/errors"
 	"github.com/bfbarry/CollabSource/back-end/repository"
 )
 
@@ -20,7 +22,7 @@ func BuildProjectHandler() *ProjectHandler {
 	return projectHandler
 }
 
-func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) ([]byte, error) {
+func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) ([]byte, *errors.Error) {
 	msg, err := self.repository.Insert(projectCollection, streamObj)
 	if err != nil {	
 		return nil, err
@@ -29,16 +31,20 @@ func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) ([]byte, err
 	return msg, nil
 }
 
-func (self *ProjectHandler) GetProjectByID(id string) ([]byte, error) {
+func (self *ProjectHandler) GetProjectByID(id string) ([]byte, *errors.Error) {
+	var op errors.Op = "routes.project"
+
 	result, err := self.repository.FindByID(projectCollection, id)
 	if err != nil { // TODO: 400
 		return nil, err
 	}
-	jsonResponse, err := json.Marshal(result)
 
-	if err != nil { // TODO: 500
-		return nil, err
+	jsonResponse, jsonerr := json.Marshal(result)
+
+	if jsonerr != nil { // TODO: handle json with function
+		return nil, errors.E(err, http.StatusInternalServerError, op, "json marshall error")
 	}
+
 	return jsonResponse, nil
 }
 

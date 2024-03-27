@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
-	"errors"
-	"log"
 	"io"
+	"log"
+	"net/http"
+
+	"github.com/bfbarry/CollabSource/back-end/errors"
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/mongoClient"
 	"go.mongodb.org/mongo-driver/bson"
@@ -34,40 +36,45 @@ func (self *Repository) getCollection(coll string) *mongo.Collection {
 	return self.mongoClient.Collection(coll)
 }
 
-func (self *Repository) Insert(coll string, streamObj *io.ReadCloser) ([]byte, error) {
-	obj, err := streamToObj(coll, streamObj)
-	if err != nil { // TODO: 400
+func (self *Repository) Insert(coll string, streamObj *io.ReadCloser) ([]byte, *errors.Error) {
+	var op errors.Op = "repository.Insert"
+	obj, err := streamToObj(coll, streamObj, true)
+	if err != nil {
 		return nil, err
 	}
-	res, err := self.getCollection(coll).InsertOne(context.TODO(), obj)
-	if err != nil {
-		var writeErr mongo.WriteException
-		if errors.As(err, &writeErr) {
-			log.Println("WriteException in Insert")
-			for _, we := range writeErr.WriteErrors {
-				log.Println(we)
-			}
-		} else {
-			log.Println("Error in Insert", err)
-		}
-		return nil, err
+	res, mongoerr := self.getCollection(coll).InsertOne(context.TODO(), obj)
+	if mongoerr != nil {
+		// TODO: once we know error space, switch and return them
+		// var writeErr mongo.WriteException
+		// if errors.As(err, &writeErr) {
+		// 	log.Println("WriteException in Insert")
+		// 	for _, we := range writeErr.WriteErrors {
+		// 		log.Println(we)
+		// 	}
+		// } else {
+		// }
+		return nil, errors.E(mongoerr, http.StatusBadRequest, op, "bad insert")
 	}
 	log.Printf("inserted document with ID %v\n", res.InsertedID)
 	return []byte("success"), nil
 }
 
-func (self *Repository) FindByID(coll string, id string) (model.Model, error) {
+func (self *Repository) FindByID(coll string, id string) (model.Model, *errors.Error) {
+	var op errors.Op = "repository.FindByID"
 	obj := model.GetModelFromName(coll)
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		log.Printf("error in FindByID %s", err)
-		return nil, err
+		return nil, errors.E(err, http.StatusInternalServerError, op, "not a valid ObjectID")
 	}
 	filter := bson.M{"_id": objId}
 	err = self.getCollection(coll).FindOne(context.TODO(), filter).Decode(obj)
 	if err != nil {
-		log.Println(err)
-		return nil, err
+		switch err {
+		case mongo.ErrNoDocuments:
+			return nil, errors.E(err, http.StatusInternalServerError, op, "no documents found")
+		default:
+			return nil, errors.E(err, http.StatusInternalServerError, op, "")
+		}
 	}
 	return obj, nil
 }
@@ -84,28 +91,29 @@ func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIn
 	skip := pageIndex * pageSize
 	findOptions.SetSkip(skip)
 	findOptions.SetLimit(pageSize)
-	cursor, err := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
-	if err != nil {
-		log.Println(err)
-		return nil, err
+	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
+	if findErr != nil {
+		log.Println(findErr)
+		return nil, findErr
 	}
 
-	results, err := cursorToSlice(cursor, coll)
-	if err != nil {
-		log.Println(err)
-		return nil, err
+	results, sliceErr := cursorToSlice(cursor, coll)
+	if sliceErr != nil {
+		log.Println(sliceErr)
+		return nil, sliceErr
 	}
 	return results, nil
 }
 
 func (self *Repository) Update(coll string, streamObj *io.ReadCloser, id string) ([]byte, error) {
-	obj, err := streamToObj(coll, streamObj)
-	if err != nil { // TODO: 400
+	var op errors.Op = "repository.Update"
+	obj, err := streamToObj(coll, streamObj, false)
+	if err != nil {
 		return nil, err
 	}
-	objId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatalf("Update %s", err)
+	objId, errId := primitive.ObjectIDFromHex(id)
+	if errId != nil {
+		return nil, errors.E(errId, http.StatusInternalServerError, op, "not a valid ObjectID")
 	}
 	_, err2 := self.getCollection(coll).UpdateOne(context.TODO(), 
 												   bson.M{"_id": objId},

@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
-	"github.com/bfbarry/CollabSource/back-end/repository"
+	// "github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/server"
+	"github.com/bfbarry/CollabSource/back-end/errors"
 )
 const BASE_URL = "/api/v1"
 
@@ -36,10 +37,13 @@ func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint{
 	return endpoints
 }
 
+// TODO: separate methods in functions
 func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id") // must pass an id
+	// TODO: return 
 	var res []byte
-	var err error
+	var err *errors.Error
+	var op errors.Op = "routes.project"
 
 	switch r.Method {
 	case http.MethodGet:
@@ -48,24 +52,22 @@ func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		log.Println("POST /project")
 		res, err = self.handler.CreateProject(&r.Body)
-	case http.MethodPatch:
-		log.Println("PATCH /project")
-		res, err = self.handler.UpdateProject(id, &r.Body)
-	case http.MethodDelete:
-		log.Println("DELETE /project")
-		deleteModeStr := r.URL.Query().Get("mode")
-		deleteMode := repository.Str2Enum(deleteModeStr)
-		res, err = self.handler.DeleteProject(deleteMode, id)
+	// case http.MethodPatch:
+	// 	log.Println("PATCH /project")
+	// 	res, err = self.handler.UpdateProject(id, &r.Body)
+	// case http.MethodDelete:
+	// 	log.Println("DELETE /project")
+	// 	deleteModeStr := r.URL.Query().Get("mode")
+	// 	deleteMode := repository.Str2Enum(deleteModeStr)
+	// 	res, err = self.handler.DeleteProject(deleteMode, id)
 	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		writeJsonError(w, errors.E(err, http.StatusMethodNotAllowed, op, "Method Not Allowed"))
 	}
 
 	if err != nil {
-		log.Printf("Error in /project %s", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		writeJsonError(w, err)
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(res)
+	writeJsonSuccess(w, res)
 }
 
 func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +93,6 @@ func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in GetProjectsByFilter %s", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(res)
+	} 
+	writeJsonSuccess(w, res)
 }
