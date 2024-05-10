@@ -16,23 +16,23 @@ type ProjectHandler struct {
 	repository *repository.Repository
 }
 
-func BuildProjectHandler() *ProjectHandler {
+func BuildProjectHandler() *ProjectHandler { //TODO: init
 	log.Println("Building project handler")
 	projectHandler := &ProjectHandler{repository: repository.GetMongoRepository()}
 	return projectHandler
 }
 
-func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) ([]byte, *errors.Error) {
+func (self *ProjectHandler) CreateProject(streamObj *io.ReadCloser) (*Resp, *errors.Error) {
 	msg, err := self.repository.Insert(projectCollection, streamObj)
 	if err != nil {	
 		return nil, err
 	}
 	// TODO: get id and return obj
-	return msg, nil
+	return newResponse(http.StatusCreated, msg), nil
 }
 
-func (self *ProjectHandler) GetProjectByID(id string) ([]byte, *errors.Error) {
-	var op errors.Op = "routes.project"
+func (self *ProjectHandler) GetProjectByID(id string) (*Resp, *errors.Error) {
+	var op errors.Op = "controllers.GetProjectByID"
 
 	result, err := self.repository.FindByID(projectCollection, id)
 	if err != nil { // TODO: 400
@@ -45,34 +45,35 @@ func (self *ProjectHandler) GetProjectByID(id string) ([]byte, *errors.Error) {
 		return nil, errors.E(err, http.StatusInternalServerError, op, "json marshall error")
 	}
 
-	return jsonResponse, nil
+	return newResponse(http.StatusOK, jsonResponse), nil
 }
 
-func (self *ProjectHandler) GetProjectsByFilter(streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) ([]byte, error) {
+func (self *ProjectHandler) GetProjectsByFilter(streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) (*Resp, *errors.Error) {
+	var op errors.Op = "controllers.GetProjectsByFilter"
 	results, err := self.repository.Find(projectCollection, streamFilterObj, 0, 10)
 	if err != nil {
 		return nil, err
 	}
-	jsonResponse, err := json.Marshal(results)
+	var jsonErr error
+	jsonResponse, jsonErr := json.Marshal(results)
 	if err != nil { // TODO: 500
-		return nil, err
+		return nil, errors.E(jsonErr, http.StatusInternalServerError, op, "json marshall error")
 	}
-	return jsonResponse, nil
+	return newResponse(http.StatusOK, jsonResponse), nil
 }
 
-func (self *ProjectHandler) UpdateProject(id string, streamObj *io.ReadCloser) ([]byte, error) {
-	var err error
-	_, err = self.repository.Update(projectCollection, streamObj, id)
+func (self *ProjectHandler) UpdateProject(id string, streamObj *io.ReadCloser) (*Resp, *errors.Error) {
+	_, err := self.repository.Update(projectCollection, streamObj, id)
 	if err != nil {
 		return nil, err
 	}
-	return []byte("success"), nil
+	return newResponse(http.StatusOK,[]byte("success")), nil
 }
 
-func (self *ProjectHandler) DeleteProject(deleteMode repository.DeleteMode, id string) ([]byte, error) {
+func (self *ProjectHandler) DeleteProject(deleteMode repository.DeleteMode, id string) (*Resp, *errors.Error) {
 	msg, err := self.repository.Delete(projectCollection, deleteMode, id)
 	if err != nil {
 		return nil, err
 	}
-	return msg, nil
+	return newResponse(http.StatusOK, msg), nil
 }

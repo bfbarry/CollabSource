@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
-	// "github.com/bfbarry/CollabSource/back-end/repository"
+	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/server"
 	"github.com/bfbarry/CollabSource/back-end/errors"
 )
@@ -41,7 +41,7 @@ func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint{
 func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id") // must pass an id
 	// TODO: return 
-	var res []byte
+	var res *controllers.Resp
 	var err *errors.Error
 	var op errors.Op = "routes.project"
 
@@ -52,28 +52,30 @@ func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		log.Println("POST /project")
 		res, err = self.handler.CreateProject(&r.Body)
-	// case http.MethodPatch:
-	// 	log.Println("PATCH /project")
-	// 	res, err = self.handler.UpdateProject(id, &r.Body)
-	// case http.MethodDelete:
-	// 	log.Println("DELETE /project")
-	// 	deleteModeStr := r.URL.Query().Get("mode")
-	// 	deleteMode := repository.Str2Enum(deleteModeStr)
-	// 	res, err = self.handler.DeleteProject(deleteMode, id)
+	case http.MethodPatch:
+		log.Println("PATCH /project")
+		res, err = self.handler.UpdateProject(id, &r.Body)
+	case http.MethodDelete:
+		log.Println("DELETE /project")
+		deleteModeStr := r.URL.Query().Get("mode")
+		deleteMode := repository.Str2Enum(deleteModeStr)
+		res, err = self.handler.DeleteProject(deleteMode, id)
 	default:
 		writeJsonError(w, errors.E(err, http.StatusMethodNotAllowed, op, "Method Not Allowed"))
+		return
 	}
 
 	if err != nil {
 		writeJsonError(w, err)
+		return
 	}
 	writeJsonSuccess(w, res)
 }
 
 func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
 	// TODO: to be used by elasticsearch
-	var res []byte
-	var err error
+	var res *controllers.Resp
+	var err *errors.Error
 
 	switch r.Method {
 	case http.MethodGet:
@@ -90,9 +92,9 @@ func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
 		}
 		res, err = self.handler.GetProjectsByFilter(&r.Body, pageNum, pageSize)
 		if err != nil {
-			log.Printf("Error in GetProjectsByFilter %s", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			writeJsonError(w, err)
 		}
 	} 
+	_ = res
 	writeJsonSuccess(w, res)
 }

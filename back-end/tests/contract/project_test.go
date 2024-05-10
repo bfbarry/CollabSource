@@ -70,7 +70,7 @@ func TestDeleteProject(t *testing.T){
 
 func TestGetProjects(t *testing.T) {
 	goodBody := []byte(`{
-		"category" 	  : "test",
+		"category" 	  : "test"
 	}`)
 	requestWithBody("GET", "http://127.0.0.1:8080/api/v1/projects", "?pageNum=0&pageSize=10", http.StatusOK, goodBody)
 }
