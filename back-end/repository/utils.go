@@ -50,6 +50,7 @@ func streamToObj(coll string, reqBody *io.ReadCloser, insert bool) (model.Model,
 	var op errors.Op = "repository.streamToObj"
 	obj := model.GetModelFromName(coll)
 	err := json.NewDecoder(*reqBody).Decode(&obj)
+	//TODO: validate fields for update operation
 	if insert && !validateFullStruct(obj) {
 		return nil, errors.E(errors.New("Non full struct"), 
 							http.StatusBadRequest, op, "Object must have fully populated fields for Insert")

@@ -19,7 +19,7 @@ func E(	err error, code int, op Op, message string) *Error {
 	e := &Error{
 		err: err,
 		op: op,
-		code: http.StatusInternalServerError,
+		code: code,
 		message: message,
 	}
 	return e

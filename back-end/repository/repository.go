@@ -64,15 +64,15 @@ func (self *Repository) FindByID(coll string, id string) (model.Model, *errors.E
 	obj := model.GetModelFromName(coll)
 	objId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.E(err, http.StatusInternalServerError, op, "not a valid ObjectID")
+		return nil, errors.E(err, http.StatusBadRequest, op, "not a valid ObjectID")
 	}
 	filter := bson.M{"_id": objId}
 	err = self.getCollection(coll).FindOne(context.TODO(), filter).Decode(obj)
 	if err != nil {
 		switch err {
 		case mongo.ErrNoDocuments:
-			return nil, errors.E(err, http.StatusInternalServerError, op, "no documents found")
-		default:
+			return nil, errors.E(err, http.StatusBadRequest, op, "no documents found")
+		default: // TODO define larger error space
 			return nil, errors.E(err, http.StatusInternalServerError, op, "")
 		}
 	}
@@ -82,7 +82,9 @@ func (self *Repository) FindByID(coll string, id string) (model.Model, *errors.E
 //filter e.g, bson.M{"category": filterField}
 //		bson.M{} for no filter
 // TODO: set limit on pageSize
-func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIndex int64, pageSize int64) ([]model.Model, error){
+func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIndex int64, pageSize int64) ([]model.Model, *errors.Error){
+	var op errors.Op = "repository.Find"
+
 	filter, err := streamToBsonM(coll, streamFilterObj)
 	if err != nil {
 		return nil, err
@@ -94,18 +96,18 @@ func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIn
 	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if findErr != nil {
 		log.Println(findErr)
-		return nil, findErr
+		return nil, errors.E(findErr, http.StatusBadRequest, op, "no documents found")
 	}
 
 	results, sliceErr := cursorToSlice(cursor, coll)
 	if sliceErr != nil {
 		log.Println(sliceErr)
-		return nil, sliceErr
+		return nil, errors.E(sliceErr, http.StatusInternalServerError, op, "")
 	}
 	return results, nil
 }
 
-func (self *Repository) Update(coll string, streamObj *io.ReadCloser, id string) ([]byte, error) {
+func (self *Repository) Update(coll string, streamObj *io.ReadCloser, id string) ([]byte, *errors.Error) {
 	var op errors.Op = "repository.Update"
 	obj, err := streamToObj(coll, streamObj, false)
 	if err != nil {
@@ -113,7 +115,7 @@ func (self *Repository) Update(coll string, streamObj *io.ReadCloser, id string)
 	}
 	objId, errId := primitive.ObjectIDFromHex(id)
 	if errId != nil {
-		return nil, errors.E(errId, http.StatusInternalServerError, op, "not a valid ObjectID")
+		return nil, errors.E(errId, http.StatusBadRequest, op, "not a valid ObjectID")
 	}
 	_, err2 := self.getCollection(coll).UpdateOne(context.TODO(), 
 												   bson.M{"_id": objId},
@@ -126,10 +128,11 @@ func (self *Repository) Update(coll string, streamObj *io.ReadCloser, id string)
 	return []byte("success"), nil
 }
 
-func (self *Repository) Delete(coll string, deleteMode DeleteMode, id string) ([]byte, error) {
-	objId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		log.Fatalf("Delete %s", err)
+func (self *Repository) Delete(coll string, deleteMode DeleteMode, id string) ([]byte, *errors.Error) {
+	var op errors.Op = "repository.Delete"
+	objId, errId := primitive.ObjectIDFromHex(id)
+	if errId != nil {
+		return nil, errors.E(errId, http.StatusBadRequest, op, "not a valid ObjectID")
 	}
 	var del_err error
 	switch deleteMode {
@@ -139,8 +142,7 @@ func (self *Repository) Delete(coll string, deleteMode DeleteMode, id string) ([
 			_, del_err = self.getCollection(coll).DeleteOne(context.TODO(), bson.M{"_id": objId})
 		}
 	if del_err != nil {	
-		log.Println(del_err)
-		return nil, err
+		return nil, errors.E(del_err, http.StatusBadRequest, op, "Could not delete document")
 	}
 
 	return []byte("success"), nil
