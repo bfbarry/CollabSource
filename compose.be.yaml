@@ -1,0 +1,30 @@
+services:
+  backend:
+    environment:
+      - DOCKERDEV=1
+      - MONGO_URI=mongodb://root:example@mongo:27017
+      - MONGO_DATABASE=local
+    restart: always
+    build:
+      context: back-end
+    volumes:
+      - ./back-end:/app
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - mongo
+  mongo:
+    restart: always
+    image: mongo
+    volumes:
+      - ./back-end/data:/data/db
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: local

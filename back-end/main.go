@@ -15,7 +15,7 @@ func main() {
 	// Build and register all routes
 	// userRoutes := routes.BuildUserRoutes()
 	// server.RegisterRoutes(userRoutes)
-	server.RegisterRoutes(routes.DefaultProjectRoutes)
+	server.RegisterRoutes(routes.GetDefaultProjectRoutes())
 
 	// Start server
 	server.StartServer()

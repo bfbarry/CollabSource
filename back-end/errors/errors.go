@@ -2,30 +2,30 @@ package errors
 
 import (
 	native "errors"
+	"fmt"
 	"net/http"
 	"strings"
-	"fmt"
 )
 
 type Op string
 type Error struct {
-	err error
-	code int
-	op Op
+	err     error
+	code    int
+	op      Op
 	message string
 }
 
-func E(	err error, code int, op Op, message string) *Error {
+func E(err error, code int, op Op, message string) *Error {
 	e := &Error{
-		err: err,
-		op: op,
-		code: code,
+		err:     err,
+		op:      op,
+		code:    code,
 		message: message,
 	}
 	return e
 }
 
-//Error as string format for debugging (server)
+// Error as string format for debugging (server)
 func (this *Error) Error() string {
 	b := new(strings.Builder)
 	b.WriteString(fmt.Sprintf("Error in %s: ", string(this.op)))
@@ -37,7 +37,7 @@ func (this *Error) Error() string {
 	return b.String()
 }
 
-//used for json returned to client
+// used for json returned to client
 func (this *Error) ClientMessage() string {
 
 	// if this.code >= http.StatusInternalServerError {
@@ -92,5 +92,3 @@ func Is(err, target error) bool {
 func As(err error, target interface{}) bool {
 	return native.As(err, target)
 }
-
-

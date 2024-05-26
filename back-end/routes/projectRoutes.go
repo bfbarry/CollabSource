@@ -7,29 +7,34 @@ import (
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"github.com/bfbarry/CollabSource/back-end/repository"
+	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"github.com/bfbarry/CollabSource/back-end/server"
-	"github.com/bfbarry/CollabSource/back-end/errors"
 )
+
 const BASE_URL = "/api/v1"
 
 type ProjectRoutes struct {
-	routes []server.Endpoint
-	handler *controllers.ProjectHandler // TODO rename to controller
+	routes            []server.Endpoint
+	projectController *controllers.ProjectController
 }
 
-var DefaultProjectRoutes *ProjectRoutes
+var defaultProjectRoutes *ProjectRoutes
+
+func GetDefaultProjectRoutes() *ProjectRoutes {
+	return defaultProjectRoutes
+}
+
+func init() {
+	defaultProjectRoutes = &ProjectRoutes{}
+	defaultProjectRoutes.projectController = controllers.GetProjectController()
+	defaultProjectRoutes.routes = initiateProjectRoutes(defaultProjectRoutes)
+}
 
 func (self *ProjectRoutes) GetRoutes() []server.Endpoint {
 	return self.routes
 }
 
-func init() {
-	DefaultProjectRoutes = &ProjectRoutes{}
-	DefaultProjectRoutes.handler = controllers.BuildProjectHandler()
-	DefaultProjectRoutes.routes = initiateProjectRoutes(DefaultProjectRoutes)
-}
-
-func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint{
+func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint {
 	endpoints := []server.Endpoint{}
 	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/project/{id}", BASE_URL), Handler: self.project})
 	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/projects", BASE_URL), Handler: self.projects})
@@ -40,61 +45,53 @@ func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint{
 // TODO: separate methods in functions
 func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id") // must pass an id
-	// TODO: return 
-	var res *controllers.Resp
-	var err *errors.Error
-	var op errors.Op = "routes.project"
+	// TODO: return
+	// var err *errors.Error
+	// var op errors.Op = "routes.project"
 
 	switch r.Method {
 	case http.MethodGet:
 		log.Println("GET /project")
-		res, err = self.handler.GetProjectByID(id)
+		self.projectController.GetProjectByID(w, id)
 	case http.MethodPost:
 		log.Println("POST /project")
-		res, err = self.handler.CreateProject(&r.Body)
+		self.projectController.CreateProject(w, r)
 	case http.MethodPatch:
 		log.Println("PATCH /project")
-		res, err = self.handler.UpdateProject(id, &r.Body)
+		self.projectController.UpdateProject(w, id, &r.Body)
 	case http.MethodDelete:
 		log.Println("DELETE /project")
 		deleteModeStr := r.URL.Query().Get("mode")
 		deleteMode := repository.Str2Enum(deleteModeStr)
-		res, err = self.handler.DeleteProject(deleteMode, id)
+		self.projectController.DeleteProject(w, deleteMode, id)
 	default:
-		writeJsonError(w, errors.E(err, http.StatusMethodNotAllowed, op, "Method Not Allowed"))
-		return
+		responseEntity.ResponseEntity(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}
-
-	if err != nil {
-		writeJsonError(w, err)
-		return
-	}
-	writeJsonSuccess(w, res)
 }
 
 func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
 	// TODO: to be used by elasticsearch
-	var res *controllers.Resp
-	var err *errors.Error
+	// var res *controllers.Resp
+	// var err *errors.Error
 
-	switch r.Method {
-	case http.MethodGet:
-		log.Println("GET /projects")
-		pageNum, intErr := queryParamToInt64(r, "pageNum")
-		if intErr != nil {
-			log.Printf("Error in queryParamToInt64 %s", err)
-			http.Error(w, "query param must be int64", http.StatusBadRequest)
-		}
-		pageSize, intErr := queryParamToInt64(r, "pageSize")
-		if intErr != nil {
-			log.Printf("Error in queryParamToInt64 %s", err)
-			http.Error(w, "query param must be int64", http.StatusBadRequest)
-		}
-		res, err = self.handler.GetProjectsByFilter(&r.Body, pageNum, pageSize)
-		if err != nil {
-			writeJsonError(w, err)
-		}
-	} 
-	_ = res
-	writeJsonSuccess(w, res)
+	// switch r.Method {
+	// case http.MethodGet:
+	// 	log.Println("GET /projects")
+	// 	pageNum, intErr := queryParamToInt64(r, "pageNum")
+	// 	if intErr != nil {
+	// 		log.Printf("Error in queryParamToInt64 %s", err)
+	// 		http.Error(w, "query param must be int64", http.StatusBadRequest)
+	// 	}
+	// 	pageSize, intErr := queryParamToInt64(r, "pageSize")
+	// 	if intErr != nil {
+	// 		log.Printf("Error in queryParamToInt64 %s", err)
+	// 		http.Error(w, "query param must be int64", http.StatusBadRequest)
+	// 	}
+	// 	res, err = self.projectController.GetProjectsByFilter(&r.Body, pageNum, pageSize)
+	// 	if err != nil {
+	// 		writeJsonError(w, err)
+	// 	}
+	// }
+	// _ = res
+	// writeJsonSuccess(w, res)
 }

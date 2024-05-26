@@ -1,0 +1,44 @@
+services:
+  frontend:
+    build:
+      context: FE/projectname
+    ports:
+      - 3000:3000
+    volumes:
+      - ./FE/projectname:/usr/src/app
+    restart: always
+    depends_on:
+      - nodeproxy
+  nodeproxy:
+    restart: always
+    build:
+      context: nodeProxy
+    volumes:
+      - ./nodeProxy:/usr/src/app
+    ports:
+      - 8000:8000
+    expose:
+      - 8000
+    depends_on:
+      - backend
+  backend:
+    restart: always
+    build:
+      context: springPractice
+    volumes:
+      - ./springPractice:/home/gradle/src
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - mongo
+  mongo:
+    restart: always
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
