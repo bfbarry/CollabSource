@@ -1,0 +1,55 @@
+#explore-projects-section {
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+}
+
+#project-tiles-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#project-tile {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    background-image: linear-gradient(45deg, #3E3E79 , #7878E8);
+    border-radius: 20px;
+    color: white;
+    padding: 10px;
+}
+
+#scroll-container {
+    display: flex;
+    align-items: center;
+    background-color: #759FED;
+    overflow: hidden;
+    height: 150px;
+    color: white;
+    font-size: 30px;
+  }
+  
+  /* for Firefox */
+  @-moz-keyframes my-animation {
+    from { -moz-transform: translateX(100%); }
+    to { -moz-transform: translateX(-100%); }
+  }
+  
+  /* for Chrome */
+  @-webkit-keyframes my-animation {
+    from { -webkit-transform: translateX(100%); }
+    to { -webkit-transform: translateX(-100%); }
+  }
+  
+  @keyframes my-animation {
+    from {
+      -moz-transform: translateX(100%);
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    to {
+      -moz-transform: translateX(-100%);
+      -webkit-transform: translateX(-100%);
+      transform: translateX(-100%);
+    }  }
