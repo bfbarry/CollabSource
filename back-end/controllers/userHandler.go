@@ -23,7 +23,8 @@ func BuildUserHandler() UserHandler{
 // }
 
 func (self *UserHandler) GetUser(id string){
-	self.repository.FindByID(userCollection ,id)
+	// self.repository.FindByID(userCollection ,id)
+	return
 }
 
 // func (self *UserHandler) CreateUser(){
