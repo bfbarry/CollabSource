@@ -9,6 +9,7 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const PROJECT_COLLECTION = "projects"
@@ -51,20 +52,85 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 
 func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) {
 	// var op errors.Op = "controllers.GetProjectByID"
+	projectEntity := &model.Project{}
 
-	result, err := self.repository.FindByID(PROJECT_COLLECTION, id)
-	if err != nil { // TODO: 400
-		// return nil, err
+	ObjId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		responseEntity.ResponseEntity(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+
+	result, mongoErr := self.repository.FindByID(PROJECT_COLLECTION, ObjId, projectEntity)
+	if mongoErr != nil {
+		responseEntity.ResponseEntity(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if result == nil {
+		responseEntity.ResponseEntity(w, http.StatusBadRequest, []byte("ID Not Found"))
+		return
 	}
 
 	jsonResponse, jsonerr := json.Marshal(result)
-
-	if jsonerr != nil { // TODO: handle json with function
-		// return nil, errors.E(err, http.StatusInternalServerError, op, "json marshall error")
+	if jsonerr != nil { 
+		responseEntity.ResponseEntity(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
 	}
 
 	responseEntity.ResponseEntity(w, http.StatusOK, jsonResponse)
-	// return jsonResponse, nil
+}
+
+func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r *http.Request) {
+
+	ObjId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		responseEntity.ResponseEntity(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+
+	streamObj := r.Body
+	projectEntity := model.Project{}
+	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
+		responseEntity.ResponseEntity(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+
+	updatedCount, mongoErr := self.repository.Update(PROJECT_COLLECTION, ObjId, projectEntity)
+	if mongoErr != nil {
+		responseEntity.ResponseEntity(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	if updatedCount == 0 {
+		responseEntity.ResponseEntity(w, http.StatusBadRequest, []byte("ID Not Found"))
+		return
+	}
+	
+	responseEntity.ResponseEntity(w, http.StatusOK, []byte("success"))
+}
+
+func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
+	// TODO pass in reader to get URL param
+
+	ObjId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		responseEntity.ResponseEntity(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+
+	// deleteModeStr := r.URL.Query().Get("mode") // TODO separate hard and soft delete in repository.go
+	// deleteMode := repository.Str2Enum(deleteModeStr)
+	deletedCount, mongoErr := self.repository.Delete(PROJECT_COLLECTION, ObjId)
+	if mongoErr != nil {
+		responseEntity.ResponseEntity(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	if deletedCount == 0{
+		responseEntity.ResponseEntity(w, http.StatusBadRequest, []byte("ID Not Found"))
+		return
+	}
+	
+	responseEntity.ResponseEntity(w, http.StatusOK, []byte("Success"))
 }
 
 func (self *ProjectController) GetProjectsByFilter(w http.ResponseWriter, streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) {
@@ -80,22 +146,4 @@ func (self *ProjectController) GetProjectsByFilter(w http.ResponseWriter, stream
 	}
 	responseEntity.ResponseEntity(w, http.StatusOK, jsonResponse)
 	// return jsonResponse, nil
-}
-
-func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, streamObj *io.ReadCloser) {
-	_, err := self.repository.Update(PROJECT_COLLECTION, streamObj, id)
-	if err != nil {
-		// return nil, err
-	}
-	// return  []byte("success"), nil
-	responseEntity.ResponseEntity(w, http.StatusOK, []byte("success"))
-}
-
-func (self *ProjectController) DeleteProject(w http.ResponseWriter, deleteMode repository.DeleteMode, id string) {
-	msg, err := self.repository.Delete(PROJECT_COLLECTION, deleteMode, id)
-	if err != nil {
-		// return nil, err
-	}
-	// return msg, nil
-	responseEntity.ResponseEntity(w, http.StatusOK, msg)
 }

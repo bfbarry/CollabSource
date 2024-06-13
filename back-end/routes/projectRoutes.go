@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
-	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"github.com/bfbarry/CollabSource/back-end/server"
 )
@@ -42,7 +41,6 @@ func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint {
 	return endpoints
 }
 
-// TODO: separate methods in functions
 func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id") // must pass an id
 	// TODO: return
@@ -58,12 +56,10 @@ func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 		self.projectController.CreateProject(w, r)
 	case http.MethodPatch:
 		log.Println("PATCH /project")
-		self.projectController.UpdateProject(w, id, &r.Body)
+		self.projectController.UpdateProject(w, id, r)
 	case http.MethodDelete:
 		log.Println("DELETE /project")
-		deleteModeStr := r.URL.Query().Get("mode")
-		deleteMode := repository.Str2Enum(deleteModeStr)
-		self.projectController.DeleteProject(w, deleteMode, id)
+		self.projectController.DeleteProject(w, id)
 	default:
 		responseEntity.ResponseEntity(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}
