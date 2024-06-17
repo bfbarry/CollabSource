@@ -7,41 +7,33 @@ import (
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
-	"github.com/bfbarry/CollabSource/back-end/server"
 )
 
-const BASE_URL = "/api/v1"
-
-type ProjectRoutes struct {
-	routes            []server.Endpoint
-	projectController *controllers.ProjectController
+type ProjectRouter struct {
+	Router
+	controller *controllers.ProjectController
 }
 
-var defaultProjectRoutes *ProjectRoutes
+var defaultProjectRouter *ProjectRouter
 
-func GetDefaultProjectRoutes() *ProjectRoutes {
-	return defaultProjectRoutes
+func GetDefaultProjectRouter() *ProjectRouter {
+	return defaultProjectRouter
 }
 
 func init() {
-	defaultProjectRoutes = &ProjectRoutes{}
-	defaultProjectRoutes.projectController = controllers.GetProjectController()
-	defaultProjectRoutes.routes = initiateProjectRoutes(defaultProjectRoutes)
+	defaultProjectRouter = &ProjectRouter{}
+	defaultProjectRouter.controller = controllers.GetProjectController()
+	defaultProjectRouter.initiateProjectRoutes()
 }
 
-func (self *ProjectRoutes) GetRoutes() []server.Endpoint {
-	return self.routes
+func (self *ProjectRouter) initiateProjectRoutes() {
+	endpoints := []Route{}
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/project/{id}", BASE_URL), Handler: self.project})
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/projects", BASE_URL), Handler: self.projects})
+	self.routes = endpoints
 }
 
-func initiateProjectRoutes(self *ProjectRoutes) []server.Endpoint {
-	endpoints := []server.Endpoint{}
-	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/project/{id}", BASE_URL), Handler: self.project})
-	endpoints = append(endpoints, server.Endpoint{Path: fmt.Sprintf("%s/projects", BASE_URL), Handler: self.projects})
-
-	return endpoints
-}
-
-func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
+func (self *ProjectRouter) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id") // must pass an id
 	// TODO: return
 	// var err *errors.Error
@@ -50,22 +42,22 @@ func (self *ProjectRoutes) project(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		log.Println("GET /project")
-		self.projectController.GetProjectByID(w, id)
+		self.controller.GetProjectByID(w, id)
 	case http.MethodPost:
 		log.Println("POST /project")
-		self.projectController.CreateProject(w, r)
+		self.controller.CreateProject(w, r)
 	case http.MethodPatch:
 		log.Println("PATCH /project")
-		self.projectController.UpdateProject(w, id, r)
+		self.controller.UpdateProject(w, id, r)
 	case http.MethodDelete:
 		log.Println("DELETE /project")
-		self.projectController.DeleteProject(w, id)
+		self.controller.DeleteProject(w, id)
 	default:
-		responseEntity.ResponseEntity(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}
 }
 
-func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
+func (self *ProjectRouter) projects(w http.ResponseWriter, r *http.Request) {
 	// TODO: to be used by elasticsearch
 	// var res *controllers.Resp
 	// var err *errors.Error
@@ -83,7 +75,7 @@ func (self *ProjectRoutes) projects(w http.ResponseWriter, r *http.Request) {
 	// 		log.Printf("Error in queryParamToInt64 %s", err)
 	// 		http.Error(w, "query param must be int64", http.StatusBadRequest)
 	// 	}
-	// 	res, err = self.projectController.GetProjectsByFilter(&r.Body, pageNum, pageSize)
+	// 	res, err = self.controller.GetProjectsByFilter(&r.Body, pageNum, pageSize)
 	// 	if err != nil {
 	// 		writeJsonError(w, err)
 	// 	}

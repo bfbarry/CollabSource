@@ -12,10 +12,8 @@ func main() {
 	// Initilize a web server
 	server := server.CreateNewServer()
 
-	// Build and register all routes
-	// userRoutes := routes.BuildUserRoutes()
-	// server.RegisterRoutes(userRoutes)
-	server.RegisterRoutes(routes.GetDefaultProjectRoutes())
+	server.RegisterRoutes(routes.GetDefaultProjectRouter())
+	server.RegisterRoutes(routes.GetDefaultUserRouter())
 
 	// Start server
 	server.StartServer()

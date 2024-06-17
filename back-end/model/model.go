@@ -3,8 +3,11 @@ package model
 type Model interface{}
 
 type User struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name  	    string   `json:"name"        bson:"name,omitempty"` 
+	Email 	    string   `json:"email"       bson:"email,omitempty"` 
+	Description string   `json:"description" bson:"description,omitempty"`
+	Skills      []string `json:"skills"      bson:"skills,omitempty"`
+	 
 }
 
 type Project struct {
