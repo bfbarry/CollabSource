@@ -17,6 +17,8 @@ type Project struct {
 	Category    string   `json:"category"    bson:"category,omitempty"`
 	Tags        []string `json:"tags"        bson:"tags,omitempty"`
 	// DateCreated string
-	// Members []string
+	// Creator string
+	// Admins []string 
+	//  []string
 	// Location    string   `json:"location"`
 }
