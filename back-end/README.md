@@ -35,9 +35,15 @@ In studio3T you will need to set up a configuration for the first time. The foll
 - Now you can connect to this configuration and see the UI populate with the data in the DB.
 - Note: connection is only possible when docker compose is running.
 
-To populate dummy data into the mongo DB run the following python file:
+To insert and delete dummy data into the mongo DB run the following command(s):
+```shell
+$ pip install -r back-end/etc/requirements.txt # if you haven't already
+$ python back-end/etc/populate_db.py           # inserts dummy data
+$ python back-end/etc/erase_db.py              # erases dummy data
+```
+You only need to run each command once to persist changes to the db. Rerun after if you erase the db.
 
-- TODO
+`config.json` Contains parameters for the database, i.e., how many documents to insert.
 
 ## Development
 
