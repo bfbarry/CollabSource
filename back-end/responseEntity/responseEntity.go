@@ -8,7 +8,7 @@ import (
 	// "github.com/bfbarry/CollabSource/back-end/controllers"
 )
 
-func ResponseEntity(w http.ResponseWriter, status int, Body []byte) {
+func SendRequest(w http.ResponseWriter, status int, Body []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write(Body)

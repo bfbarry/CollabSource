@@ -2,66 +2,66 @@ package controllers
 
 import (
 	"encoding/json"
-	"io"
+	// "io"
 	"net/http"
 
-	// "github.com/bfbarry/CollabSource/back-end/errors"
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	// "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-const PROJECT_COLLECTION = "projects"
+const USER_COLLECTION = "users"
 
-type ProjectController struct {
+type UserController struct {
 	repository *repository.Repository
 }
 
-var defaultProjectController *ProjectController
+var defaultUserController *UserController
 
-func GetProjectController() *ProjectController {
-	return defaultProjectController
+func GetUserController() *UserController {
+	return defaultUserController
 }
 
 func init() {
-	defaultProjectController = &ProjectController{repository: repository.GetMongoRepository()}
+	defaultUserController = &UserController{repository: repository.GetMongoRepository()}
 }
 
-func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
-
+func (self *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	streamObj := r.Body
-	projectEntity := model.Project{}
-	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
+	userEntity := model.User{}
+
+	if err := json.NewDecoder(streamObj).Decode(&userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
 
-	if projectEntity.Name == "" || projectEntity.Description == "" {
+	if userEntity.Name == "" || userEntity.Description == "" {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid payload"))
 		return
 	}
 
-	if err := self.repository.Insert(PROJECT_COLLECTION, projectEntity); err != nil {
+	if err := self.repository.Insert(USER_COLLECTION, userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
 		return
 	}
 
-	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
+	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
 }
 
-func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) {
-	// var op errors.Op = "controllers.GetProjectByID"
-	projectEntity := &model.Project{}
-
+func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
+	userEntity := &model.User{}
 	ObjId, err := primitive.ObjectIDFromHex(id)
+
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
 
-	result, mongoErr := self.repository.FindByID(PROJECT_COLLECTION, ObjId, projectEntity)
+	result, mongoErr := self.repository.FindByID(USER_COLLECTION, ObjId, userEntity)
 	if mongoErr != nil {
+		//TODO log
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -70,16 +70,16 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) 
 		return
 	}
 
-	jsonResponse, jsonerr := json.Marshal(result)
+	jsonRes, jsonerr := json.Marshal(result)
 	if jsonerr != nil { 
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
 
-	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
+	responseEntity.SendRequest(w, http.StatusOK, jsonRes)
 }
 
-func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r *http.Request) {
+func (self *UserController) UpdateUser(w http.ResponseWriter, id string, r *http.Request) {
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -88,13 +88,13 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	}
 
 	streamObj := r.Body
-	projectEntity := model.Project{}
-	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
+	userEntity := model.User{}
+	if err := json.NewDecoder(streamObj).Decode(&userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
 
-	updatedCount, mongoErr := self.repository.Update(PROJECT_COLLECTION, ObjId, projectEntity)
+	updatedCount, mongoErr := self.repository.Update(USER_COLLECTION, ObjId, userEntity)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
@@ -108,7 +108,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
 }
 
-func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
+func (self *UserController) DeleteUser(w http.ResponseWriter, id string) {
 	// TODO pass in reader to get URL param
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
@@ -119,7 +119,7 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 
 	// deleteModeStr := r.URL.Query().Get("mode") // TODO separate hard and soft delete in repository.go
 	// deleteMode := repository.Str2Enum(deleteModeStr)
-	deletedCount, mongoErr := self.repository.Delete(PROJECT_COLLECTION, ObjId)
+	deletedCount, mongoErr := self.repository.Delete(USER_COLLECTION, ObjId)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
@@ -131,19 +131,4 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 	}
 	
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
-}
-
-func (self *ProjectController) GetProjectsByFilter(w http.ResponseWriter, streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) {
-	// var op errors.Op = "controllers.GetProjectsByFilter"
-	results, err := self.repository.Find(PROJECT_COLLECTION, streamFilterObj, 0, 10)
-	if err != nil {
-		// return nil, err
-	}
-	// var jsonErr error
-	jsonResponse, _ := json.Marshal(results)
-	if err != nil { // TODO: 500
-		// return nil, errors.E(jsonErr, http.StatusInternalServerError, op, "json marshall error")
-	}
-	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
-	// return jsonResponse, nil
 }

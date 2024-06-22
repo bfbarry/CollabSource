@@ -5,35 +5,18 @@ import (
 	"fmt"
 	"net/http"
 	"errors"
-	// "os"
-	// "github.com/bfbarry/CollabSource/back-end/connections"
-	// "go.mongodb.org/mongo-driver/mongo"
-
+	"github.com/bfbarry/CollabSource/back-end/routes"
 )
 
-type Endpoint struct {
-	Path string
-	Handler func(http.ResponseWriter,*http.Request)
-}
-
-type Routes interface {
-	GetRoutes() []Endpoint
-}
 
 type Server struct {
 	mux *http.ServeMux
-	// Env *connections.Env
-	// mongoClient *mongo.Client
 }
 
 func CreateNewServer() *Server{
 	server := Server{}
 	server.mux = http.NewServeMux()
-	
-	// client, db := connections.InitDB()
-	// env := &connections.Env{DB: db}
-	// server.Env = env
-	// server.mongoClient = client
+
 	return &server
 }
 
@@ -51,7 +34,7 @@ func (s *Server) StartServer() {
 	}
 }
 
-func (s *Server) RegisterRoutes(routes Routes) {
+func (s *Server) RegisterRoutes(routes routes.IRoutes) {
 	for _,r := range routes.GetRoutes() {
 		s.mux.HandleFunc(r.Path, r.Handler)
 	}

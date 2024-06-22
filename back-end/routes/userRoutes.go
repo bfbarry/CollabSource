@@ -2,52 +2,51 @@ package routes
 
 import (
 	"net/http"
-	"github.com/bfbarry/CollabSource/back-end/server"
+	"log"
 	"github.com/bfbarry/CollabSource/back-end/controllers"
+	"github.com/bfbarry/CollabSource/back-end/responseEntity"
+	"fmt"
 )
 
-type UserRoutes struct {
-	routes []server.Endpoint
-	userHandler controllers.UserHandler
+type UserRouter struct {
+	Router
+	controller *controllers.UserController
 }
 
-func (userRoutes UserRoutes) GetRoutes() []server.Endpoint {
-	return userRoutes.routes
+var defaultUserRouter *UserRouter
+
+func GetDefaultUserRouter() *UserRouter {
+	return defaultUserRouter
 }
 
-func BuildUserRoutes() UserRoutes {
-	userRoutes := UserRoutes{}
-	userRoutes.userHandler = controllers.BuildUserHandler()
-	userRoutes.routes = initiateUserRoutes(userRoutes)
-
-	return userRoutes
+func init() {
+	defaultUserRouter = &UserRouter{}
+	defaultUserRouter.controller = controllers.GetUserController()
+	defaultUserRouter.routes = initiateUserRoutes(defaultUserRouter)
 }
 
-func initiateUserRoutes(userRoutes UserRoutes) []server.Endpoint{
-	endpoints := []server.Endpoint{}
-	endpoints = append(endpoints, server.Endpoint{Path:"/users", Handler:userRoutes.users})
-	endpoints = append(endpoints, server.Endpoint{Path:"/user/{id}", Handler:userRoutes.user})
-
+func initiateUserRoutes(self *UserRouter) []Route {
+	endpoints := []Route{}
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/user/{id}", BASE_URL), Handler: self.user})
 	return endpoints
 }
 
-func (userRoutes UserRoutes) users(w http.ResponseWriter, r *http.Request) {
+func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
 	switch r.Method {
 	case http.MethodGet:
-		// userRoutes.userHandler.GetAllUsers()
+		log.Println("GET /user")
+		self.controller.GetUserByID(w, id)
+	case http.MethodPost:
+		log.Println("POST /user")
+		self.controller.CreateUser(w, r)
+	case http.MethodPatch:
+		log.Println("PATCH /user")
+		self.controller.UpdateUser(w, id, r)
+	case http.MethodDelete:
+		log.Println("DELETE /user")
+		self.controller.DeleteUser(w, id)
 	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (userRoutes UserRoutes) user(w http.ResponseWriter, r *http.Request) {
-	//bad url parm return 400
-	switch r.Method {
-	case http.MethodGet:
-		userRoutes.userHandler.GetUser(" ID HERE ")
-	// case http.MethodPost:
-	// 	userRoutes.userHandler.CreateUser()
-	default:
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}
 }
