@@ -58,28 +58,15 @@ func (self *ProjectRouter) project(w http.ResponseWriter, r *http.Request) {
 }
 
 func (self *ProjectRouter) projects(w http.ResponseWriter, r *http.Request) {
-	// TODO: to be used by elasticsearch
-	// var res *controllers.Resp
-	// var err *errors.Error
 
-	// switch r.Method {
-	// case http.MethodGet:
-	// 	log.Println("GET /projects")
-	// 	pageNum, intErr := queryParamToInt64(r, "pageNum")
-	// 	if intErr != nil {
-	// 		log.Printf("Error in queryParamToInt64 %s", err)
-	// 		http.Error(w, "query param must be int64", http.StatusBadRequest)
-	// 	}
-	// 	pageSize, intErr := queryParamToInt64(r, "pageSize")
-	// 	if intErr != nil {
-	// 		log.Printf("Error in queryParamToInt64 %s", err)
-	// 		http.Error(w, "query param must be int64", http.StatusBadRequest)
-	// 	}
-	// 	res, err = self.controller.GetProjectsByFilter(&r.Body, pageNum, pageSize)
-	// 	if err != nil {
-	// 		writeJsonError(w, err)
-	// 	}
-	// }
-	// _ = res
-	// writeJsonSuccess(w, res)
+	switch r.Method {
+	case http.MethodGet:
+		log.Println("GET /projects")
+		self.controller.GetProject(w, r)
+	case http.MethodPost:
+		//TODO Methods and structs for getting data by query
+		break
+	default:
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
+	}
 }
