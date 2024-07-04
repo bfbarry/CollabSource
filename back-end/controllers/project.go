@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
+	"strconv"
 
 	// "github.com/bfbarry/CollabSource/back-end/errors"
 	"github.com/bfbarry/CollabSource/back-end/model"
@@ -71,7 +71,7 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) 
 	}
 
 	jsonResponse, jsonerr := json.Marshal(result)
-	if jsonerr != nil { 
+	if jsonerr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -104,7 +104,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
 		return
 	}
-	
+
 	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
 }
 
@@ -125,25 +125,49 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 		return
 	}
 
-	if deletedCount == 0{
+	if deletedCount == 0 {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
 		return
 	}
-	
+
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }
 
-func (self *ProjectController) GetProjectsByFilter(w http.ResponseWriter, streamFilterObj *io.ReadCloser, pageNumber int64, pageSize int64) {
-	// var op errors.Op = "controllers.GetProjectsByFilter"
-	results, err := self.repository.Find(PROJECT_COLLECTION, streamFilterObj, 0, 10)
-	if err != nil {
-		// return nil, err
+func (self *ProjectController) GetProject(w http.ResponseWriter, r *http.Request) {
+	defaultPageNum := 1
+	defaultPageSize := 10
+	var pageNum int
+	var pageSize int
+	var err error
+
+	queryParams := r.URL.Query()
+
+	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
+		pageNum = defaultPageNum
 	}
-	// var jsonErr error
-	jsonResponse, _ := json.Marshal(results)
-	if err != nil { // TODO: 500
-		// return nil, errors.E(jsonErr, http.StatusInternalServerError, op, "json marshall error")
+
+	if pageSize, err = strconv.Atoi(queryParams.Get("size")); err != nil {
+		pageSize = defaultPageSize
 	}
+
+	var projectEntity []model.Project
+
+	mongoErr := self.repository.GetAllByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize)
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	response := responseEntity.PaginatedResponseBody[model.Project]{
+		Data: projectEntity,
+		Page: pageNum,
+	}
+
+	jsonResponse, jsonerr := json.Marshal(response)
+	if jsonerr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
 	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
-	// return jsonResponse, nil
 }

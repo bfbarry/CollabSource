@@ -9,8 +9,9 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/mongoClient"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Repository struct {
@@ -45,7 +46,7 @@ func (self *Repository) Insert(coll string, obj model.Model) *errors.Error {
 
 func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj interface{}) (model.Model, *errors.Error) {
 	// var op errors.Op = "repository.FindByID"
-	
+
 	filter := bson.M{"_id": id}
 	err := self.getCollection(coll).FindOne(context.TODO(), filter).Decode(obj)
 	if err != nil {
@@ -61,18 +62,18 @@ func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj interfa
 
 func (self *Repository) Update(coll string, id primitive.ObjectID, obj model.Model) (int64, *errors.Error) {
 	// var op errors.Op = "repository.Update"
-	
-	result, err := self.getCollection(coll).UpdateOne(context.TODO(),bson.M{"_id": id},bson.M{"$set": obj})
+
+	result, err := self.getCollection(coll).UpdateOne(context.TODO(), bson.M{"_id": id}, bson.M{"$set": obj})
 	if err != nil {
 		return 0, &errors.Error{}
 	}
-	
+
 	return result.ModifiedCount, nil
 }
 
 func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *errors.Error) {
 	//var op errors.Op = "repository.Delete"
-	
+
 	// var del_err error
 	// switch deleteMode {
 	// case SoftDelete:
@@ -87,11 +88,27 @@ func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *erro
 	return result.DeletedCount, nil
 }
 
-// filter e.g, bson.M{"category": filterField}
-//
-//	bson.M{} for no filter
-//
-// TODO: set limit on pageSize
+func (self *Repository) GetAllByPage(coll string, results interface{}, pageNum int, pageSize int) *errors.Error {
+
+	findOptions := options.Find()
+	skip := (pageNum - 1) * pageSize
+	findOptions.SetLimit(int64(pageSize))
+	findOptions.SetSkip(int64(skip))
+
+	cursor, findErr := self.getCollection(coll).Find(context.TODO(), bson.D{}, findOptions)
+	if findErr != nil {
+		return &errors.Error{}
+	}
+
+	if err := cursor.All(context.TODO(), results); err != nil {
+		log.Printf(err.Error())
+		return &errors.Error{}
+	}
+
+	return nil
+
+}
+
 func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIndex int64, pageSize int64) ([]model.Model, *errors.Error) {
 	// var op errors.Op = "repository.Find"
 

@@ -13,3 +13,8 @@ func SendRequest(w http.ResponseWriter, status int, Body []byte) {
 	w.WriteHeader(status)
 	w.Write(Body)
 }
+
+type PaginatedResponseBody[T any] struct {
+	Data []T `json:"data"`
+	Page int `json:"page"`
+}
