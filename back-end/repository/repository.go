@@ -88,18 +88,18 @@ func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *erro
 	return result.DeletedCount, nil
 }
 
-func (self *Repository) GetAllByPage(coll string, results interface{}, pageNum int, pageSize int) *errors.Error {
+func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int) *errors.Error {
 
 	findOptions := options.Find()
 	skip := (pageNum - 1) * pageSize
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64(skip))
-
-	cursor, findErr := self.getCollection(coll).Find(context.TODO(), bson.D{}, findOptions)
+	filter := bson.D{} // TODO make as arg, refine filter on use case (e.g., project category)
+	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if findErr != nil {
 		return &errors.Error{}
 	}
-
+	// TODO not obvious this is where decode happens/data is read
 	if err := cursor.All(context.TODO(), results); err != nil {
 		log.Printf(err.Error())
 		return &errors.Error{}

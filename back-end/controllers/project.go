@@ -152,7 +152,7 @@ func (self *ProjectController) GetProject(w http.ResponseWriter, r *http.Request
 
 	var projectEntity []model.Project
 
-	mongoErr := self.repository.GetAllByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize)
+	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return

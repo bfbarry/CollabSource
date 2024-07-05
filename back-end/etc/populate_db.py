@@ -21,8 +21,8 @@ if __name__ == '__main__':
 
     project_docs = [
         {
-            "name"        : f"DevProj{i}",
-            "description" : f"DevDesc{i}",
+            "name"        : f"Dev Project {i}",
+            "description" : f"This project is about certain things. It will accomplish a cool goal!",
             "category" 	  : "sample_category",
             "tags"        : ["tag1", "tag2"]
         }
@@ -31,9 +31,9 @@ if __name__ == '__main__':
 
     user_docs = [
         {
-            "name": f"DevUser{i}",
+            "name": f"Dev User {i}",
             "email": f"DevUser{i}@z.com",
-            "description": "hey :)",
+            "description": "hey :) I'm a sample user I like certain hobbies, and I am skilled at certain things.",
             "skills": ["sorcery", "tiktok dance"]
         }
         for i in range(N_USERS)

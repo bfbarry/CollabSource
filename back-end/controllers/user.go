@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	// "io"
+	"strconv"
 	"net/http"
 
 	"github.com/bfbarry/CollabSource/back-end/model"
@@ -72,6 +72,45 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
 
 	jsonRes, jsonerr := json.Marshal(result)
 	if jsonerr != nil { 
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	responseEntity.SendRequest(w, http.StatusOK, jsonRes)
+}
+
+func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
+	defaultPageNum := 1
+	defaultPageSize := 10
+
+	var pageNum int
+	var pageSize int
+	var err error
+
+	queryParams := r.URL.Query()
+
+	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
+		pageNum = defaultPageNum
+	}
+
+	if pageSize, err = strconv.Atoi(queryParams.Get("size")); err != nil {
+		pageNum = defaultPageSize
+	}
+
+	var userEntities []model.User
+
+	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize)
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	res := responseEntity.PaginatedResponseBody[model.User] {
+		Data: userEntities,
+		Page: pageNum,
+	}
+
+	jsonRes, jsonErr := json.Marshal(res)
+	if jsonErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
