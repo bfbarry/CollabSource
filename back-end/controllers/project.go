@@ -10,6 +10,7 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const PROJECT_COLLECTION = "projects"
@@ -151,8 +152,8 @@ func (self *ProjectController) GetProject(w http.ResponseWriter, r *http.Request
 	}
 
 	var projectEntity []model.Project
-
-	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize)
+	filt := bson.M{}
+	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return

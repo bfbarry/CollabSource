@@ -9,7 +9,7 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 const USER_COLLECTION = "users"
@@ -82,10 +82,25 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
 func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	defaultPageNum := 1
 	defaultPageSize := 10
+	queryJson := model.IDArray{}
+	var err error
+
+	if err := json.NewDecoder(r.Body).Decode(&queryJson); err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+
+	strIds := queryJson.IDs
+	var objIDs []primitive.ObjectID
+	objIDs, err = stringSlice2ObjectIDSlice(strIds)
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+	filter := bson.M{"_id": bson.M{"$in": objIDs}}
 
 	var pageNum int
 	var pageSize int
-	var err error
 
 	queryParams := r.URL.Query()
 
@@ -99,7 +114,7 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	var userEntities []model.User
 
-	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize)
+	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
