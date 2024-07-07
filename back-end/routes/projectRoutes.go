@@ -62,7 +62,7 @@ func (self *ProjectRouter) projects(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		log.Println("GET /projects")
-		self.controller.GetProject(w, r)
+		self.controller.GetProjects(w, r)
 	case http.MethodPost:
 		//TODO Methods and structs for getting data by query
 		break

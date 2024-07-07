@@ -134,7 +134,7 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }
 
-func (self *ProjectController) GetProject(w http.ResponseWriter, r *http.Request) {
+func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Request) {
 	defaultPageNum := 1
 	defaultPageSize := 10
 	var pageNum int
