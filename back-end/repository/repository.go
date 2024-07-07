@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"io"
 	"log"
 
 	"github.com/bfbarry/CollabSource/back-end/errors"
@@ -88,14 +87,13 @@ func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *erro
 	return result.DeletedCount, nil
 }
 
-func (self *Repository) GetAllByPage(coll string, results interface{}, pageNum int, pageSize int) *errors.Error {
+func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int, filter bson.M) *errors.Error {
 
 	findOptions := options.Find()
 	skip := (pageNum - 1) * pageSize
 	findOptions.SetLimit(int64(pageSize))
 	findOptions.SetSkip(int64(skip))
-
-	cursor, findErr := self.getCollection(coll).Find(context.TODO(), bson.D{}, findOptions)
+	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if findErr != nil {
 		return &errors.Error{}
 	}
@@ -107,30 +105,4 @@ func (self *Repository) GetAllByPage(coll string, results interface{}, pageNum i
 
 	return nil
 
-}
-
-func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIndex int64, pageSize int64) ([]model.Model, *errors.Error) {
-	// var op errors.Op = "repository.Find"
-
-	// filter, err := streamToBsonM(coll, streamFilterObj)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// findOptions := options.Find()
-	// skip := pageIndex * pageSize
-	// findOptions.SetSkip(skip)
-	// findOptions.SetLimit(pageSize)
-	// cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
-	// if findErr != nil {
-	// 	log.Println(findErr)
-	// 	return nil, errors.E(findErr, http.StatusBadRequest, op, "no documents found")
-	// }
-
-	// results, sliceErr := cursorToSlice(cursor, coll)
-	// if sliceErr != nil {
-	// 	log.Println(sliceErr)
-	// 	return nil, errors.E(sliceErr, http.StatusInternalServerError, op, "")
-	// }
-	// return results, nil
-	return nil, nil
 }
