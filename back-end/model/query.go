@@ -1,7 +1,8 @@
 package model
 
 // structs for json query
+// Add fields as necessary
 
-type IDArray struct {
+type UserPostQuery struct {
 	IDs []string
 }

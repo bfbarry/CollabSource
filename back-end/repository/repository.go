@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"io"
 	"log"
 
 	"github.com/bfbarry/CollabSource/back-end/errors"
@@ -98,7 +97,7 @@ func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum
 	if findErr != nil {
 		return &errors.Error{}
 	}
-	// TODO not obvious this is where decode happens/data is read
+
 	if err := cursor.All(context.TODO(), results); err != nil {
 		log.Printf(err.Error())
 		return &errors.Error{}
@@ -106,30 +105,4 @@ func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum
 
 	return nil
 
-}
-
-func (self *Repository) Find(coll string, streamFilterObj *io.ReadCloser, pageIndex int64, pageSize int64) ([]model.Model, *errors.Error) {
-	// var op errors.Op = "repository.Find"
-
-	// filter, err := streamToBsonM(coll, streamFilterObj)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// findOptions := options.Find()
-	// skip := pageIndex * pageSize
-	// findOptions.SetSkip(skip)
-	// findOptions.SetLimit(pageSize)
-	// cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
-	// if findErr != nil {
-	// 	log.Println(findErr)
-	// 	return nil, errors.E(findErr, http.StatusBadRequest, op, "no documents found")
-	// }
-
-	// results, sliceErr := cursorToSlice(cursor, coll)
-	// if sliceErr != nil {
-	// 	log.Println(sliceErr)
-	// 	return nil, errors.E(sliceErr, http.StatusInternalServerError, op, "")
-	// }
-	// return results, nil
-	return nil, nil
 }

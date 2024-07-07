@@ -54,9 +54,12 @@ func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 
 func (self *UserRouter) users(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
+	case http.MethodGet:
+		log.Println("GET /users")
+		self.controller.GetUsers(w, r)
 	case http.MethodPost:
 		log.Println("POST /users")
-		self.controller.GetUsers(w, r)
+		self.controller.GetUsersByQuery(w, r)
 		//TODO Methods and structs for getting data by query
 		// implementation: pass in multiple user IDs
 		break

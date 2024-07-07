@@ -10,6 +10,7 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
+	"log"
 )
 
 const USER_COLLECTION = "users"
@@ -79,25 +80,23 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
 	responseEntity.SendRequest(w, http.StatusOK, jsonRes)
 }
 
-func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
+func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Request) {
 	defaultPageNum := 1
 	defaultPageSize := 10
-	queryJson := model.IDArray{}
 	var err error
-
-	if err := json.NewDecoder(r.Body).Decode(&queryJson); err != nil {
+	query := model.UserPostQuery{}
+	
+	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
-
-	strIds := queryJson.IDs
-	var objIDs []primitive.ObjectID
-	objIDs, err = stringSlice2ObjectIDSlice(strIds)
+	log.Println(query)
+	var filter bson.M
+	filter, err = postQueryToBsonM(query)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
-	filter := bson.M{"_id": bson.M{"$in": objIDs}}
 
 	var pageNum int
 	var pageSize int
@@ -116,6 +115,48 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
+		log.Println(mongoErr)
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	res := responseEntity.PaginatedResponseBody[model.User] {
+		Data: userEntities,
+		Page: pageNum,
+	}
+
+	jsonRes, jsonErr := json.Marshal(res)
+	if jsonErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	responseEntity.SendRequest(w, http.StatusOK, jsonRes)
+}
+
+func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
+	defaultPageNum := 1
+	defaultPageSize := 10
+	var err error
+
+	var pageNum int
+	var pageSize int
+
+	queryParams := r.URL.Query()
+
+	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
+		pageNum = defaultPageNum
+	}
+
+	if pageSize, err = strconv.Atoi(queryParams.Get("size")); err != nil {
+		pageNum = defaultPageSize
+	}
+
+	var userEntities []model.User
+	filter := bson.M{}
+
+	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
+	if mongoErr != nil {
+		log.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
