@@ -67,3 +67,5 @@ func (self *UserRouter) users(w http.ResponseWriter, r *http.Request) {
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))
 	}
 }
+
+
