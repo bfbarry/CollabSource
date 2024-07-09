@@ -11,6 +11,7 @@ import (
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
+	"reflect"
 )
 
 const PROJECT_COLLECTION = "projects"
@@ -61,17 +62,17 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) 
 		return
 	}
 
-	result, mongoErr := self.repository.FindByID(PROJECT_COLLECTION, ObjId, projectEntity)
-	if mongoErr != nil {
+	mongoErr := self.repository.FindByID(PROJECT_COLLECTION, ObjId, projectEntity)
+	//error handling for StatusNotFound
+	if reflect.DeepEqual(*projectEntity, model.Project{}) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
+		return
+	} else if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if result == nil {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
-		return
-	}
 
-	jsonResponse, jsonerr := json.Marshal(result)
+	jsonResponse, jsonerr := json.Marshal(projectEntity)
 	if jsonerr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return

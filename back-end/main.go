@@ -17,7 +17,6 @@ func main() {
 	server.RegisterRoutes(routes.GetDefaultUserRouter())
 
 	log.InitLogEngine("", "stdout", log.DEBUG)
-
 	// Start server
 	server.StartServer()
 }

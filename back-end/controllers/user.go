@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
+	"reflect"
 )
 
 const USER_COLLECTION = "users"
@@ -29,22 +30,56 @@ func init() {
 	defaultUserController = &UserController{repository: repository.GetMongoRepository()}
 }
 
-func (self *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	streamObj := r.Body
+func (self *UserController) Register(w http.ResponseWriter, r *http.Request) {
 	userEntity := model.User{}
 
-	if err := json.NewDecoder(streamObj).Decode(&userEntity); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
 
-	if userEntity.Name == "" || userEntity.Description == "" {
+	// TODO check skills array is empty
+	// TODO create function for business logic readability e.g., SatisfiesRecommender()
+	if userEntity.Name == "" || userEntity.Description == "" || 
+	userEntity.Email == "" || userEntity.Password == "" {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid payload"))
 		return
 	}
 
+	emailFilter := bson.M{"email": userEntity.Email}
+	userDummy := &model.User{}
+	if err := self.repository.FindOne(USER_COLLECTION, emailFilter, userDummy); err == nil {
+		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("email exists"))
+		return
+	}
 	if err := self.repository.Insert(USER_COLLECTION, userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
+		return
+	}
+
+	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
+}
+
+func (self *UserController) Login(w http.ResponseWriter, r *http.Request) {
+	// TODO model field constraints
+	loginFields := model.LoginFields{}
+	user := &model.User{}
+
+	if err := json.NewDecoder(r.Body).Decode(&loginFields); err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+
+	filter := bson.M{"email": loginFields.Email}
+	err := self.repository.FindOne(USER_COLLECTION, filter, user)
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("incorrect email"))
+		return
+	}
+
+	if user.Password != loginFields.Password {
+		log.Println(user.Password, loginFields.Password)
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("incorrect password"))
 		return
 	}
 
@@ -60,18 +95,18 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
 		return
 	}
 
-	result, mongoErr := self.repository.FindByID(USER_COLLECTION, ObjId, userEntity)
-	if mongoErr != nil {
+	mongoErr := self.repository.FindByID(USER_COLLECTION, ObjId, userEntity)
+	if reflect.DeepEqual(*userEntity, model.User{}) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
+		return
+	} else if mongoErr != nil {
 		//TODO log
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if result == nil {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
-		return
-	}
 
-	jsonRes, jsonerr := json.Marshal(result)
+
+	jsonRes, jsonerr := json.Marshal(userEntity)
 	if jsonerr != nil { 
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
@@ -186,6 +221,14 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, id string, r *http
 	userEntity := model.User{}
 	if err := json.NewDecoder(streamObj).Decode(&userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+	
+	// TODO other controller for LoginFields
+
+	if userEntity.Email != "" || userEntity.Password != "" {
+		log.Println("cannot change password in UpdateUser")
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid Json"))
 		return
 	}
 

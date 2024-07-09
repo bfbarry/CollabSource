@@ -5,6 +5,7 @@ type Model interface{}
 type User struct {
 	Name  	    string   `json:"name"        bson:"name,omitempty"` 
 	Email 	    string   `json:"email"       bson:"email,omitempty"` 
+	Password    string   `json:"password"    bson:"password,omitempty"`
 	Description string   `json:"description" bson:"description,omitempty"`
 	Skills      []string `json:"skills"      bson:"skills,omitempty"`
 	 

@@ -29,6 +29,8 @@ func (self *UserRouter) initiateUserRoutes() {
 	endpoints := []Route{}
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/user/{id}", BASE_URL), Handler: self.user})
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/users", BASE_URL), Handler: self.users})
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/login", BASE_URL), Handler: self.login})
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/register", BASE_URL), Handler: self.register})
 	self.routes = endpoints
 }
 
@@ -38,9 +40,7 @@ func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		log.Println("GET /user")
 		self.controller.GetUserByID(w, id)
-	case http.MethodPost:
-		log.Println("POST /user")
-		self.controller.CreateUser(w, r)
+
 	case http.MethodPatch:
 		log.Println("PATCH /user")
 		self.controller.UpdateUser(w, id, r)
@@ -68,4 +68,22 @@ func (self *UserRouter) users(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (self *UserRouter) login(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		fmt.Println("POST /login")
+		self.controller.Login(w, r)
+	default:
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))
+	}
+}
 
+func (self *UserRouter) register(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		log.Println("POST /register")
+		self.controller.Register(w, r)
+	default:
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))
+	}
+}
