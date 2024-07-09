@@ -1,8 +1,8 @@
-package logging
+package log
 
 import (
+	// native "log"
 	"fmt"
-	"log"
 	"os"
 	"time"
 )
@@ -24,7 +24,7 @@ type LogEngine struct {
 	filterLevel LogLevel
 }
 
-var Logger *LogEngine
+var L *LogEngine
 
 type Msg struct {
 	level LogLevel
@@ -67,7 +67,7 @@ func getCurrentTime() string {
 }
 
 func InitLogEngine(uri string, protocol string, filterLevel LogLevel) {
-	Logger = &LogEngine{
+	L = &LogEngine{
 		uri: uri,
 		protocol: protocol,
 		filterLevel: filterLevel,
@@ -97,7 +97,7 @@ func (this *LogEngine) Log(level LogLevel, message string) {
 	fmtLog := fmt.Sprintf(messageFormat, levelAsString(l.level), l.dateTime, l.message)
 	switch this.protocol {
 	case "stdout":
-		log.Println(fmtLog)
+		fmt.Println(fmtLog)
 	case "file":
 		f, err := os.OpenFile(this.uri, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		checkErr(err)

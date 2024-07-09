@@ -43,7 +43,7 @@ func (self *Repository) Insert(coll string, obj model.Model) *errors.Error {
 	return nil
 }
 
-func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj interface{}) (model.Model, *errors.Error) {
+func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj model.Model) error {
 	// var op errors.Op = "repository.FindByID"
 
 	filter := bson.M{"_id": id}
@@ -51,12 +51,26 @@ func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj interfa
 	if err != nil {
 		switch err {
 		case mongo.ErrNoDocuments:
-			return nil, nil
+			return err
 		default:
-			return nil, &errors.Error{}
+			return err
 		}
 	}
-	return obj, nil
+	return nil
+}
+
+func (self *Repository) FindOne(coll string, uniqueField bson.M, obj model.Model) error {
+	// TODO maybe constraints on name to ensure it's one field in the model
+	err := self.getCollection(coll).FindOne(context.TODO(), uniqueField).Decode(obj)
+	if err != nil {
+		switch err {
+		case mongo.ErrNoDocuments:
+			return err
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (self *Repository) Update(coll string, id primitive.ObjectID, obj model.Model) (int64, *errors.Error) {

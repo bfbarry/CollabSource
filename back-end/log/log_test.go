@@ -1,4 +1,4 @@
-package logging
+package log
 
 import (
 	"testing"
@@ -37,8 +37,8 @@ func TestLog(t *testing.T) {
 		os.Remove(fpath)
 	}
 	InitLogEngine(fpath, "file", WARN)
-	Logger.Log(WARN, msg)
-	Logger.Log(DEBUG, msg) //assert this one didn't go through
+	L.Log(WARN, msg)
+	L.Log(DEBUG, msg) //assert this one didn't go through
 
 	logLines := getLines(fpath)
 	if len(logLines) != 1 {
