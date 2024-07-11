@@ -1,14 +1,16 @@
 package model
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Model interface{}
 
 type User struct {
-	Name  	    string   `json:"name"        bson:"name,omitempty"` 
-	Email 	    string   `json:"email"       bson:"email,omitempty"` 
-	Password    string   `json:"password"    bson:"password,omitempty"`
-	Description string   `json:"description" bson:"description,omitempty"`
-	Skills      []string `json:"skills"      bson:"skills,omitempty"`
-	 
+	Id          primitive.ObjectID `json:"_id"        bson:"_id,omitempty"`
+	Name        string             `json:"name"        bson:"name,omitempty"`
+	Email       string             `json:"email"       bson:"email,omitempty"`
+	Password    string             `json:"password"    bson:"password,omitempty"`
+	Description string             `json:"description" bson:"description,omitempty"`
+	Skills      []string           `json:"skills"      bson:"skills,omitempty"`
 }
 
 type Project struct {
@@ -19,7 +21,7 @@ type Project struct {
 	Tags        []string `json:"tags"        bson:"tags,omitempty"`
 	// DateCreated string
 	// Creator string
-	// Admins []string 
+	// Admins []string
 	//  []string
 	// Location    string   `json:"location"`
 }

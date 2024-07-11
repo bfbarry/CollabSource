@@ -1,0 +1,45 @@
+services:
+  nodeproxy:
+    restart: always
+    build:
+      context: node-proxy
+    volumes:
+      - ./node-proxy:/usr/src/app
+    ports:
+      - 8000:8000
+    expose:
+      - 8000
+    depends_on:
+      - backend
+    environment:
+      - JWT_SECRET_KEY=712a6b71ba037b7a0c17e3d70f2412aa5c5b563e14f2947909a63d7d5e9785a3
+      - USE_JWT=${USE_JTW}
+  backend:
+    environment:
+      - DOCKERDEV=1
+      - MONGO_URI=mongodb://root:example@mongo:27017
+      - MONGO_DATABASE=local
+    restart: always
+    build:
+      context: back-end
+    volumes:
+      - ./back-end:/app
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - mongo
+  mongo:
+    restart: always
+    image: mongo
+    volumes:
+      - ./back-end/data:/data/db
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: local

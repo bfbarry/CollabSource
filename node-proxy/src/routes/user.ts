@@ -1,17 +1,23 @@
 import express, { Request, Response } from 'express';
 import authenticateJWT from '../middlewear/authentication'
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { backendUrl } from '../config'
 
 const router = express.Router()
 
-router.use(authenticateJWT)
+if (process.env.USE_JTW === 'true') {
+    router.use(authenticateJWT)
+}
 
 const USER_BASE_PATH = '/api/v1/user'
 
 interface User {
+    _id: string;
     name: string;
     email: string;
+    description: string;
+    password: string;
+    skills: string[];
 } 
 
 router.get('/:id', async (req: Request, res: Response) => {
@@ -21,10 +27,10 @@ router.get('/:id', async (req: Request, res: Response) => {
         'userEmail':`${req.email}`
     }
     
-    const response = await axios.get<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
+    const response: AxiosResponse<User> = await axios.get<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
     const user: User =  response.data;
 
-    res.status(200).json({ user });
+    res.status(response.status).json({ user });
 });
 
 router.patch('/:id', async (req: Request, res: Response) => {
@@ -47,13 +53,16 @@ router.delete('/:id', async (req: Request, res: Response) => {
         'userEmail':`${req.email}`
     }
     
+    let response: AxiosResponse<string> 
+
     try {
-       const response =  await axios.delete(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
+        response = await axios.delete(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
+        console.log(response)
     } catch(error) {
-        res.status(response).json({ user });
+       console.log("error")
     }
 
-    res.status(200).json({ user });
+    res.status(response.status).json({ data: response.data });
 });
   
 
