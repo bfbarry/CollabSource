@@ -1,11 +1,12 @@
 package routes
 
 import (
-	"net/http"
+	"fmt"
 	"log"
+	"net/http"
+
 	"github.com/bfbarry/CollabSource/back-end/controllers"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
-	"fmt"
 )
 
 type UserRouter struct {
@@ -40,7 +41,6 @@ func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		log.Println("GET /user")
 		self.controller.GetUserByID(w, id)
-
 	case http.MethodPatch:
 		log.Println("PATCH /user")
 		self.controller.UpdateUser(w, id, r)

@@ -1,8 +1,20 @@
-FROM node:16
+# Use the official Node.js image as the base image
+FROM node:14
+
+# Set the working directory
 WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
+
+# Copy the rest of the application source code to the working directory
 COPY . .
-RUN npx tsc
-EXPOSE 3000
-CMD [ "node", "dist/app.js" ]
+
+# Expose the port the app runs on
+EXPOSE 8000
+
+# Command to run the application using nodemon
+CMD ["npm", "run", "dev"]

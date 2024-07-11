@@ -1,32 +1,38 @@
 services:
   frontend:
     build:
-      context: FE/projectname
+      context: front-end
     ports:
       - 3000:3000
     volumes:
-      - ./FE/projectname:/usr/src/app
+      - ./front-end:/usr/src/app
     restart: always
     depends_on:
       - nodeproxy
   nodeproxy:
     restart: always
     build:
-      context: nodeProxy
+      context: node-proxy
     volumes:
-      - ./nodeProxy:/usr/src/app
+      - ./node-proxy:/usr/src/app
     ports:
       - 8000:8000
     expose:
       - 8000
     depends_on:
       - backend
+    environment:
+      - JWT_SECRET_KEY=712a6b71ba037b7a0c17e3d70f2412aa5c5b563e14f2947909a63d7d5e9785a3
   backend:
+    environment:
+      - DOCKERDEV=1
+      - MONGO_URI=mongodb://root:example@mongo:27017
+      - MONGO_DATABASE=local
     restart: always
     build:
-      context: springPractice
+      context: back-end
     volumes:
-      - ./springPractice:/home/gradle/src
+      - ./back-end:/app
     ports:
       - 8080:8080
     expose:
@@ -37,8 +43,12 @@ services:
     restart: always
     image: mongo
     volumes:
-      - ./data:/data/db
+      - ./back-end/data:/data/db
     ports:
       - 27017:27017
     expose:
       - 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: local
