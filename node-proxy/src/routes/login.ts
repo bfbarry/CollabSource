@@ -9,6 +9,7 @@ const router = express.Router()
 const BASE_PATH = '/api/v1'
   
 router.post('/register', async (req: Request<object, object, UserRequestBody>, res: Response) => {
+    // TODO just use the UserRequestBody type
     const { email, password, name, description  }: { email: string; password: string; description: string; name: string } = req.body;
 
     if (!email || !password) {

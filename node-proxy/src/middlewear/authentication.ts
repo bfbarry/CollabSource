@@ -16,6 +16,7 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
+    // TODO add "public" header to handle users vs guests (e.g, get projects on landing page)
     const decoded = jwt.verify(token, secretKey) as DecodedToken;
     req.email =  decoded.email ; // add more fields as needed
     next();

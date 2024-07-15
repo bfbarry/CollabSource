@@ -5,7 +5,7 @@ import { backendUrl } from '../config'
 
 const router = express.Router()
 
-if (process.env.USE_JTW === 'true') {
+if (process.env.USE_JWT === 'true') {
     router.use(authenticateJWT)
 }
 

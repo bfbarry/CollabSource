@@ -13,7 +13,7 @@ services:
       - backend
     environment:
       - JWT_SECRET_KEY=712a6b71ba037b7a0c17e3d70f2412aa5c5b563e14f2947909a63d7d5e9785a3
-      - USE_JWT=${USE_JTW}
+      - USE_JWT=${USE_JWT}
   backend:
     environment:
       - DOCKERDEV=1

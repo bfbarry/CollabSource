@@ -91,11 +91,19 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 
 	streamObj := r.Body
 	projectEntity := model.Project{}
+
 	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("something went wrong"))
+		return
+	}
+	if reflect.DeepEqual(projectEntity, model.Project{}) {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
-
+	if ! self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
+		return
+	}
 	updatedCount, mongoErr := self.repository.Update(PROJECT_COLLECTION, ObjId, projectEntity)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
@@ -103,7 +111,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	}
 
 	if updatedCount == 0 {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
+		responseEntity.SendRequest(w, http.StatusNoContent, []byte("no change"))
 		return
 	}
 
