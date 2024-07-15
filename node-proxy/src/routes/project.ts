@@ -17,6 +17,22 @@ interface Project {
 	tags       : string[];
 }
 
+router.post('/', async (req: Request<any, object, Project>, res: Response) => {
+  // TODO how to send headers and POST data
+  const headers = {
+    'userEmail': `${req.email}`
+  }
+
+  try {
+    const project: Project = req.body;
+    await axios.post<Project>(`${backendUrl}${PROJECT_BASE_PATH}/create`, project);
+    res.status(200).json({ msg: "success" })
+
+  } catch (error) {
+    res.status(error.response.status).json({ message: error.response.data})
+  }
+})
+
 router.get('/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const headers = {
@@ -28,21 +44,9 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.status(200).json({ project })
 
   } catch (error) {
-    const stat: number = error.response?.status || 500
-    switch (stat) {
-      case 404: {
-        res.status(stat).json({ message: 'Project not found with id'})
-        break
-      } case 500:
-      default:
-        res.status(stat).json({ message: 'Internal server error' });
-        break;
-    } 
+    res.status(error.response.status).json({ message: error.response.data})
   }
-
-
-
-})
+});
 
 router.patch('/:id', async (req: Request<any, object, Project>, res: Response) => {
   const id = req.params.id;
@@ -52,25 +56,29 @@ router.patch('/:id', async (req: Request<any, object, Project>, res: Response) =
 
   try {
     const project: Project = req.body;
-    await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project);
-    res.status(200).json({ msg: "success" })
+    const response: any = await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project);
+    res.status(response.status).json({ msg: "success" })
 
   } catch (error) {
-    const stat: number = error.response?.status || 500
-    switch (stat) {
-      case 400: {
-        res.status(stat).json({ message: 'project json is not right shape'})
-        break
-      } case 404: {
-        res.status(stat).json({ message: 'id not found'})
-        break
-      } case 500:
-      default: {
-      res.status(stat).json({ message: 'internal server error'})
-      break
-      }
-    } 
+      res.status(error.response.status).json({ message: error.response.data})
   }
-})
+});
+
+router.delete('/:id', async (req: Request<any, object, Project>, res: Response) => {
+  const id = req.params.id;
+  const headers = {
+    'userEmail': `${req.email}`
+  }
+
+  try {
+    const project: Project = req.body;
+    const response: any = await axios.delete<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, { headers });
+    res.status(response.status).json({ msg: "success" })
+
+  } catch (error) {
+      res.status(error.response.status).json({ message: error.response.data})
+  }
+});
+
 
 export default router
