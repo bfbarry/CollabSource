@@ -11,3 +11,10 @@ export interface UserPatchRequestBody {
     description: string;
     skills: string[];
 }
+
+export interface Project {
+    name       : string;
+    description: string;
+    category   : string;
+    tags       : string[];
+  }

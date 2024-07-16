@@ -2,6 +2,8 @@ import express, {Request, Response} from 'express';
 import authenticateJWT from '../middlewear/authentication';
 import axios, { AxiosResponse } from 'axios';
 import { backendUrl } from '../config';
+import { Project } from '../types/types';
+
 
 const router = express.Router();
 if (process.env.USE_JWT === 'true') {
@@ -9,19 +11,12 @@ if (process.env.USE_JWT === 'true') {
 }
 const PROJECT_BASE_PATH = '/api/v1/project'
 
-//TODO move into types
-interface Project {
-  name       : string;
-	description: string;
-	category   : string;
-	tags       : string[];
-}
 
-router.post('/', async (req: Request<any, object, Project>, res: Response) => {
+router.post('/', async (req: Request<object, object, Project>, res: Response) => {
   // TODO how to send headers and POST data
-  const headers = {
-    'userEmail': `${req.email}`
-  }
+  // const headers = {
+  //   'userEmail': `${req.email}`
+  // }
 
   try {
     const project: Project = req.body;
@@ -48,15 +43,15 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.patch('/:id', async (req: Request<any, object, Project>, res: Response) => {
+router.patch('/:id', async (req: Request<{id: string}, object, Project>, res: Response) => {
   const id = req.params.id;
-  const headers = {
-    'userEmail': `${req.email}`
-  }
-
+  // const headers = {
+  //   'userEmail': `${req.email}`
+  // }
+  let response : AxiosResponse<object>
   try {
     const project: Project = req.body;
-    const response: any = await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project);
+    response = await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project);
     res.status(response.status).json({ msg: "success" })
 
   } catch (error) {
@@ -64,15 +59,14 @@ router.patch('/:id', async (req: Request<any, object, Project>, res: Response) =
   }
 });
 
-router.delete('/:id', async (req: Request<any, object, Project>, res: Response) => {
+router.delete('/:id', async (req: Request<{id: string}, object, Project>, res: Response) => {
   const id = req.params.id;
   const headers = {
     'userEmail': `${req.email}`
   }
-
+  let response : AxiosResponse<object>
   try {
-    const project: Project = req.body;
-    const response: any = await axios.delete<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, { headers });
+    response = await axios.delete<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, { headers });
     res.status(response.status).json({ msg: "success" })
 
   } catch (error) {
