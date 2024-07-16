@@ -2,6 +2,7 @@ import express, {Request, Response} from 'express';
 import authenticateJWT from '../middlewear/authentication';
 import axios, { AxiosResponse } from 'axios';
 import { backendUrl } from '../config';
+import { Project } from '../types/types';
 
 const router = express.Router();
 if (process.env.USE_JWT === 'true') {
@@ -9,13 +10,6 @@ if (process.env.USE_JWT === 'true') {
 }
 const PROJECT_BASE_PATH = '/api/v1/projects'
 
-//TODO move into types
-interface Project {
-  name       : string;
-	description: string;
-	category   : string;
-	tags       : string[];
-}
 
 router.get('/', async (req: Request, res: Response) => {
   console.log(req.query)
