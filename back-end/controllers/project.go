@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-
+	"log"
+	"strings"
 	// "github.com/bfbarry/CollabSource/back-end/errors"
+	"reflect"
+
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
-	"reflect"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const PROJECT_COLLECTION = "projects"
@@ -32,9 +34,8 @@ func init() {
 
 func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
 
-	streamObj := r.Body
 	projectEntity := model.Project{}
-	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&projectEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
@@ -89,13 +90,28 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 		return
 	}
 
-	streamObj := r.Body
 	projectEntity := model.Project{}
-	if err := json.NewDecoder(streamObj).Decode(&projectEntity); err != nil {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&projectEntity); err != nil {
+		log.Println(err)
+		if strings.Contains(err.Error(), "json: unknown field") {
+			responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Unexpected fields in JSON"))
+			return
+		}
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("something went wrong"))
 		return
 	}
 
+	if reflect.DeepEqual(projectEntity, model.Project{}) {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid empty JSON"))
+		return
+	}
+
+	if ! self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
+		return
+	}
 	updatedCount, mongoErr := self.repository.Update(PROJECT_COLLECTION, ObjId, projectEntity)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
@@ -103,7 +119,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	}
 
 	if updatedCount == 0 {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
+		responseEntity.SendRequest(w, http.StatusNoContent, []byte("no change"))
 		return
 	}
 
@@ -118,19 +134,18 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
-
+	if ! self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
+		return
+	}
 	// deleteModeStr := r.URL.Query().Get("mode") // TODO separate hard and soft delete in repository.go
 	// deleteMode := repository.Str2Enum(deleteModeStr)
-	deletedCount, mongoErr := self.repository.Delete(PROJECT_COLLECTION, ObjId)
+	_, mongoErr := self.repository.Delete(PROJECT_COLLECTION, ObjId)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
 
-	if deletedCount == 0 {
-		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
-		return
-	}
 
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }

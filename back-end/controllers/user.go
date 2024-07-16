@@ -2,16 +2,17 @@ package controllers
 
 import (
 	"encoding/json"
-	"strconv"
 	"net/http"
+	"strconv"
+
+	"log"
+	"reflect"
 
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/repository"
 	"github.com/bfbarry/CollabSource/back-end/responseEntity"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/bson"
-	"log"
-	"reflect"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const USER_COLLECTION = "users"
@@ -40,8 +41,8 @@ func (self *UserController) Register(w http.ResponseWriter, r *http.Request) {
 
 	// TODO check skills array is empty
 	// TODO create function for business logic readability e.g., SatisfiesRecommender()
-	if userEntity.Name == "" || userEntity.Description == "" || 
-	userEntity.Email == "" || userEntity.Password == "" {
+	if userEntity.Name == "" || userEntity.Description == "" ||
+		userEntity.Email == "" || userEntity.Password == "" {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid payload"))
 		return
 	}
@@ -105,9 +106,8 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, id string) {
 		return
 	}
 
-
 	jsonRes, jsonerr := json.Marshal(userEntity)
-	if jsonerr != nil { 
+	if jsonerr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -120,7 +120,7 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 	defaultPageSize := 10
 	var err error
 	query := model.UserPostQuery{}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
@@ -154,7 +154,7 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	res := responseEntity.PaginatedResponseBody[model.User] {
+	res := responseEntity.PaginatedResponseBody[model.User]{
 		Data: userEntities,
 		Page: pageNum,
 	}
@@ -195,7 +195,7 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	res := responseEntity.PaginatedResponseBody[model.User] {
+	res := responseEntity.PaginatedResponseBody[model.User]{
 		Data: userEntities,
 		Page: pageNum,
 	}
@@ -217,15 +217,14 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, id string, r *http
 		return
 	}
 
-	streamObj := r.Body
 	userEntity := model.User{}
-	if err := json.NewDecoder(streamObj).Decode(&userEntity); err != nil {
+
+	if err := json.NewDecoder(r.Body).Decode(&userEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
-	
-	// TODO other controller for LoginFields
 
+	// TODO other controller for LoginFields
 	if userEntity.Email != "" || userEntity.Password != "" {
 		log.Println("cannot change password in UpdateUser")
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid Json"))
@@ -242,7 +241,7 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, id string, r *http
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
 		return
 	}
-	
+
 	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
 }
 
@@ -263,10 +262,10 @@ func (self *UserController) DeleteUser(w http.ResponseWriter, id string) {
 		return
 	}
 
-	if deletedCount == 0{
+	if deletedCount == 0 {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("ID Not Found"))
 		return
 	}
-	
+
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }

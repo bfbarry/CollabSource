@@ -1,5 +1,3 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import './HomePage/HomePage';
 import HomePage from './HomePage/HomePage';
