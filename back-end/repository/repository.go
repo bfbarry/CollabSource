@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/bfbarry/CollabSource/back-end/errors"
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/mongoClient"
 	"go.mongodb.org/mongo-driver/bson"
@@ -32,12 +31,12 @@ func (self *Repository) getCollection(coll string) *mongo.Collection {
 	return self.mongoClient.Collection(coll)
 }
 
-func (self *Repository) Insert(coll string, obj model.Model) *errors.Error {
+func (self *Repository) Insert(coll string, obj model.Model) error {
 
 	res, mongoerr := self.getCollection(coll).InsertOne(context.TODO(), obj)
 	if mongoerr != nil {
 		log.Printf("Error inserting object e message: %s", mongoerr)
-		return &errors.Error{}
+		return mongoerr
 	}
 	log.Printf("inserted document with ID %v\n", res.InsertedID)
 	return nil
@@ -73,18 +72,18 @@ func (self *Repository) FindOne(coll string, uniqueField bson.M, obj model.Model
 	return nil
 }
 
-func (self *Repository) Update(coll string, id primitive.ObjectID, obj model.Model) (int64, *errors.Error) {
+func (self *Repository) Update(coll string, id primitive.ObjectID, obj model.Model) (int64, error) {
 	// var op errors.Op = "repository.Update"
 
 	result, err := self.getCollection(coll).UpdateOne(context.TODO(), bson.M{"_id": id}, bson.M{"$set": obj})
 	if err != nil {
-		return 0, &errors.Error{}
+		return 0, err
 	}
 
 	return result.ModifiedCount, nil
 }
 
-func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *errors.Error) {
+func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, error) {
 	//var op errors.Op = "repository.Delete"
 
 	// var del_err error
@@ -95,13 +94,13 @@ func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, *erro
 	result, err := self.getCollection(coll).DeleteOne(context.TODO(), bson.M{"_id": id})
 	// }
 	if err != nil {
-		return 0, &errors.Error{}
+		return 0, err
 	}
 
 	return result.DeletedCount, nil
 }
 
-func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int, filter bson.M) *errors.Error {
+func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int, filter bson.M) error {
 
 	findOptions := options.Find()
 	skip := (pageNum - 1) * pageSize
@@ -109,12 +108,12 @@ func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum
 	findOptions.SetSkip(int64(skip))
 	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if findErr != nil {
-		return &errors.Error{}
+		return findErr
 	}
 
 	if err := cursor.All(context.TODO(), results); err != nil {
 		log.Printf(err.Error())
-		return &errors.Error{}
+		return err
 	}
 
 	return nil

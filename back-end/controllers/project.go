@@ -108,7 +108,12 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 		return
 	}
 
-	if ! self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) {
+	exists, err := self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) 
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if !exists {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
 		return
 	}
@@ -134,7 +139,12 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
-	if ! self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) {
+	exists, err := self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) 
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if !exists {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
 		return
 	}
