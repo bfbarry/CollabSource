@@ -13,14 +13,14 @@ const PROJECT_BASE_PATH = '/api/v1/project'
 
 
 router.post('/', async (req: Request<object, object, Project>, res: Response) => {
-  // TODO how to send headers and POST data
-  // const headers = {
-  //   'userEmail': `${req.email}`
-  // }
+
+  const headers = {
+    'UUID': `${req.email}`
+  }
 
   try {
     const project: Project = req.body;
-    await axios.post<Project>(`${backendUrl}${PROJECT_BASE_PATH}/create`, project);
+    await axios.post<Project>(`${backendUrl}${PROJECT_BASE_PATH}/create`, project, {headers});
     res.status(200).json({ msg: "success" })
 
   } catch (error) {
@@ -31,7 +31,7 @@ router.post('/', async (req: Request<object, object, Project>, res: Response) =>
 router.get('/:id', async (req: Request, res: Response) => {
   const id = req.params.id;
   const headers = {
-    'userEmail': `${req.email}`
+    'UUID': `${req.email}`
   }
   try {
     const response: AxiosResponse<Project> = await axios.get<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, { headers });
@@ -45,13 +45,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 router.patch('/:id', async (req: Request<{id: string}, object, Project>, res: Response) => {
   const id = req.params.id;
-  // const headers = {
-  //   'userEmail': `${req.email}`
-  // }
+  const headers = {
+    'UUID': `${req.email}`
+  }
   let response : AxiosResponse<object>
   try {
     const project: Project = req.body;
-    response = await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project);
+    response = await axios.patch<Project>(`${backendUrl}${PROJECT_BASE_PATH}/${id}`, project, {headers});
     res.status(response.status).json({ msg: "success" })
 
   } catch (error) {
@@ -62,7 +62,7 @@ router.patch('/:id', async (req: Request<{id: string}, object, Project>, res: Re
 router.delete('/:id', async (req: Request<{id: string}, object, Project>, res: Response) => {
   const id = req.params.id;
   const headers = {
-    'userEmail': `${req.email}`
+    'UUID': `${req.email}`
   }
   let response : AxiosResponse<object>
   try {

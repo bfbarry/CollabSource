@@ -11,8 +11,10 @@ interface DecodedToken {
 const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('Authorization');
 
-  if (!token) {
-    return res.status(401).json({ message: 'Access token is missing' });
+  if (token === undefined) {
+    req.email = "public"
+    next();
+    return
   }
 
   try {

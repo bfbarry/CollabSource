@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
-	"log"
 	"strings"
+
 	// "github.com/bfbarry/CollabSource/back-end/errors"
 	"reflect"
 
@@ -32,7 +33,7 @@ func init() {
 	defaultProjectController = &ProjectController{repository: repository.GetMongoRepository()}
 }
 
-func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
+func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request, UserUUID string) {
 
 	projectEntity := model.Project{}
 	if err := json.NewDecoder(r.Body).Decode(&projectEntity); err != nil {
@@ -45,6 +46,8 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	projectEntity.OwnerEmail = UserUUID
+
 	if err := self.repository.Insert(PROJECT_COLLECTION, projectEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
 		return
@@ -53,7 +56,7 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }
 
-func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) {
+func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, userUUID string) {
 	// var op errors.Op = "controllers.GetProjectByID"
 	projectEntity := &model.Project{}
 
@@ -73,6 +76,10 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) 
 		return
 	}
 
+	if projectEntity.OwnerEmail != userUUID {
+		projectEntity.OwnerEmail = ""
+	}
+
 	jsonResponse, jsonerr := json.Marshal(projectEntity)
 	if jsonerr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
@@ -82,11 +89,27 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string) 
 	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
 }
 
-func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r *http.Request) {
+func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r *http.Request, userUUID string) {
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+
+	ProjectCheck := &model.ProjectCheck{}
+	var mongoErr error
+	mongoErr = self.repository.FindByID(PROJECT_COLLECTION, ObjId, ProjectCheck)
+	if reflect.DeepEqual(*ProjectCheck, model.ProjectCheck{}) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
+		return
+	}
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if ProjectCheck.OwnerEmail != userUUID {
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}
 
@@ -102,21 +125,11 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("something went wrong"))
 		return
 	}
-
 	if reflect.DeepEqual(projectEntity, model.Project{}) {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid empty JSON"))
 		return
 	}
 
-	exists, err := self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) 
-	if err != nil {
-		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
-		return
-	}
-	if !exists {
-		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
-		return
-	}
 	updatedCount, mongoErr := self.repository.Update(PROJECT_COLLECTION, ObjId, projectEntity)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
@@ -131,7 +144,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
 }
 
-func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
+func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string, userUUID string) {
 	// TODO pass in reader to get URL param
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
@@ -139,23 +152,30 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string) {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
-	exists, err := self.repository.DocumentExists(PROJECT_COLLECTION, ObjId) 
-	if err != nil {
-		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
-		return
-	}
-	if !exists {
+
+	ProjectCheck := &model.ProjectCheck{}
+	var mongoErr error
+	mongoErr = self.repository.FindByID(PROJECT_COLLECTION, ObjId, ProjectCheck)
+	if reflect.DeepEqual(*ProjectCheck, model.ProjectCheck{}) {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
 		return
 	}
-	// deleteModeStr := r.URL.Query().Get("mode") // TODO separate hard and soft delete in repository.go
-	// deleteMode := repository.Str2Enum(deleteModeStr)
-	_, mongoErr := self.repository.Delete(PROJECT_COLLECTION, ObjId)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
+	if ProjectCheck.OwnerEmail != userUUID {
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
+		return
+	}
 
+	// deleteModeStr := r.URL.Query().Get("mode") // TODO separate hard and soft delete in repository.go
+	// deleteMode := repository.Str2Enum(deleteModeStr)
+	_, mongoErr = self.repository.Delete(PROJECT_COLLECTION, ObjId)
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
 
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
 }
