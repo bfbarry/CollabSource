@@ -37,11 +37,12 @@ router.post('/login', async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
-    const response = await axios.post(`${backendUrl}${BASE_PATH}/login`, { email, password });
-
-    if (response.status !== 200) {
-      return res.status(401).json({ message: 'Invalid username or password' });
-    }
+    try {
+        await axios.post(`${backendUrl}${BASE_PATH}/login`, { email, password });
+    } catch (error) {
+        console.log(error)
+            return res.status(error.response.status).json({ message: error.response.data });
+    }  
 
     const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
     res.status(200).json({ token });

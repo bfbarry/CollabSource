@@ -37,16 +37,17 @@ func (self *UserRouter) initiateUserRoutes() {
 
 func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	UUID := r.Header.Get("UUID")
 	switch r.Method {
 	case http.MethodGet:
 		log.Println("GET /user")
-		self.controller.GetUserByID(w, id)
+		self.controller.GetUserByID(w, UUID, id)
 	case http.MethodPatch:
 		log.Println("PATCH /user")
-		self.controller.UpdateUser(w, id, r)
+		self.controller.UpdateUser(w, UUID, id, r)
 	case http.MethodDelete:
 		log.Println("DELETE /user")
-		self.controller.DeleteUser(w, id)
+		self.controller.DeleteUser(w, UUID, id)
 	default:
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}

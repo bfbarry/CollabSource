@@ -26,7 +26,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     const userId = req.params.id;
     const headers = {
-        'userEmail':`${req.email}`
+        'UUID':`${req.email}`
     }
     
     let response: AxiosResponse<User>
@@ -49,14 +49,14 @@ axios.interceptors.request.use(request => {
 router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequestBody>, res: Response) => {
     const updatedUserBody: UserPatchRequestBody = req.body;
     const userId = req.params.id;
-    // const headers = {
-    //     'userEmail':`${req.email}`
-    // }
+    const headers = {
+        'UUID':`${req.email}`
+    }
     
     let response: AxiosResponse<User>
 
     try{
-        response = await axios.patch<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, updatedUserBody);
+        response = await axios.patch<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return
@@ -70,7 +70,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const userId = req.params.id;
     const headers = {
-        'userEmail':`${req.email}`
+        'UUID':`${req.email}`
     }
     
     let response: AxiosResponse<string> 
