@@ -13,6 +13,7 @@ services:
     restart: always
     build:
       context: node-proxy
+      dockerfile: Dockerfile.dev
     volumes:
       - ./node-proxy:/usr/src/app
     ports:
