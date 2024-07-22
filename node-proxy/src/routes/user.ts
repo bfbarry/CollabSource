@@ -3,8 +3,10 @@ import authenticateJWT from '../middlewear/authentication'
 import { AxiosResponse } from 'axios';
 import { axiosBase } from '../config'
 import { UserPatchRequestBody } from '../types/types';
+import cors from 'cors';
 
 const router = express.Router()
+router.use(cors());
 
 if (process.env.USE_JWT === 'true') {
     router.use(authenticateJWT)
