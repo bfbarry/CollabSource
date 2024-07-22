@@ -11,7 +11,7 @@ services:
     depends_on:
       - nodeproxy
     environment:
-      - NODE_PROXY_URL=http://nodeproxy:8000
+      - REACT_APP_NODE_PROXY_URL=http://nodeproxy:8000
   nodeproxy:
     restart: always
     build:

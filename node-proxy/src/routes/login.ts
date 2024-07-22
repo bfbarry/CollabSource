@@ -2,8 +2,10 @@ import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { secretKey, axiosBase } from '../config'
 import { UserRegisterRequestBody } from '../types/types'
+import cors from 'cors';
 
 const router = express.Router()
+router.use(cors());
 
 const BASE_PATH = '/api/v1'
   
