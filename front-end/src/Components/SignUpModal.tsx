@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
-import axios from 'axios';
+import axiosBase from '../config/axiosConfig'
 
 
 interface Props {
@@ -25,7 +25,7 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
     const register = async () => {
 
         try {
-        const response = await axios.post(`http://nodeproxy:8000/auth/register`, 
+        const response = await axiosBase.post(`/auth/register`, 
         { email: formData.email, password : formData.password, description: formData.description, name: formData.name });
         } catch (error){
             console.log(error)

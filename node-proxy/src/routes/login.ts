@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
-import { secretKey, backendUrl } from '../config'
+import { secretKey, axiosBase } from '../config'
 import { UserRegisterRequestBody } from '../types/types'
 
 const router = express.Router()
@@ -17,7 +16,7 @@ router.post('/register', async (req: Request<object, object, UserRegisterRequest
 
     try {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const response = await axios.post(`${backendUrl}${BASE_PATH}/register`, reqBody);
+    const response = await axiosBase.post(`${BASE_PATH}/register`, reqBody);
 
         res.status(201).json({ message: 'User registered successfully' });
    
@@ -38,7 +37,7 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     try {
-        await axios.post(`${backendUrl}${BASE_PATH}/login`, { email, password });
+        await axiosBase.post(`${BASE_PATH}/login`, { email, password });
     } catch (error) {
         console.log(error)
             return res.status(error.response.status).json({ message: error.response.data });

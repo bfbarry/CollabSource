@@ -1,7 +1,7 @@
 import express, {Request, Response} from 'express';
 import authenticateJWT from '../middlewear/authentication';
-import axios, { AxiosResponse } from 'axios';
-import { backendUrl } from '../config';
+import { AxiosResponse } from 'axios';
+import { axiosBase } from '../config';
 import { Project } from '../types/types';
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.get('/', async (req: Request, res: Response) => {
   const page = req.query.page
   const size = req.query.size
   try {
-    const response: AxiosResponse<Project[]> = await axios.get<Project[]>(`${backendUrl}${PROJECT_BASE_PATH}?page=${page}&size=${size}`, { headers });
+    const response: AxiosResponse<Project[]> = await axiosBase.get<Project[]>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, { headers });
     const project: Project[] = response.data;
     res.status(200).json(project )
 

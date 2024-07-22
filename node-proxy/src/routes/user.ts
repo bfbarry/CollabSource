@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import authenticateJWT from '../middlewear/authentication'
-import axios, { AxiosResponse } from 'axios';
-import { backendUrl } from '../config'
+import { AxiosResponse } from 'axios';
+import { axiosBase } from '../config'
 import { UserPatchRequestBody } from '../types/types';
 
 const router = express.Router()
@@ -31,7 +31,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     
     let response: AxiosResponse<User>
     try {
-        response = await axios.get<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
+        response = await axiosBase.get<User>(`${USER_BASE_PATH}/${userId}`, { headers });
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return
@@ -41,10 +41,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.status(response.status).json({ data: user });
 });
 
-axios.interceptors.request.use(request => {
-    console.log('Starting Request', request);
-    return request;
-  });
+// axios.interceptors.request.use(request => {
+//     console.log('Starting Request', request);
+//     return request;
+//   });
 
 router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequestBody>, res: Response) => {
     const updatedUserBody: UserPatchRequestBody = req.body;
@@ -56,7 +56,7 @@ router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequest
     let response: AxiosResponse<User>
 
     try{
-        response = await axios.patch<User>(`${backendUrl}${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
+        response = await axiosBase.patch<User>(`${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return
@@ -76,7 +76,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     let response: AxiosResponse<string> 
 
     try {
-        response = await axios.delete<string>(`${backendUrl}${USER_BASE_PATH}/${userId}`, { headers });
+        response = await axiosBase.delete<string>(`${USER_BASE_PATH}/${userId}`, { headers });
     } catch(error) {
        res.status(error.response.status).json({data: error.response.data})
        return
