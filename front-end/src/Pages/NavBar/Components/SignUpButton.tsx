@@ -1,20 +1,17 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { useState } from 'react';
 import SignUpModal from './SignUpModal';
 
 const SignUpButton: React.FC = () => { 
 
     const [showSignUp, setShowSignUp ] = useState<Boolean>(false);
 
-
-
     return(
         <div>
             {
                 showSignUp && <SignUpModal setShowSignUp={setShowSignUp}/>
             }
-            <button onClick={() => setShowSignUp(true)}>Sign up</button>
+            <button onClick={() => setShowSignUp(true)}>Sign Up</button>
         </div>
-        
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
-import axiosBase from '../config/axiosConfig'
+import axiosBase from '../../../config/axiosConfig'
 
 
 interface Props {
@@ -27,6 +27,7 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
         try {
         const response = await axiosBase.post(`/auth/register`, 
         { email: formData.email, password : formData.password, description: formData.description, name: formData.name });
+        console.log(response);
         } catch (error){
             console.log(error)
             setErr("placeholder error")
@@ -68,7 +69,7 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
       };
 
     return(
-        <div style={modalOverlayStyle}>
+    <div style={modalOverlayStyle}>
        <div style={modalStyle}>
             {err && 
             <div> {err} </div>
@@ -90,7 +91,7 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
 
 
        </div>
-       </div>
+    </div>
     );
 }
 

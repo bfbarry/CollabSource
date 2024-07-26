@@ -1,13 +1,48 @@
 import './App.css';
-import './HomePage/HomePage';
-import HomePage from './HomePage/HomePage';
-import NavBar from './Components/NavBar/NavBar';
+import './Pages/HomePage/HomePage';
+import HomePage from './Pages/HomePage/HomePage';
+import NavBar from './Pages/NavBar/NavBar';
+import ErrorPage from './error-page';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import { SignedInContext } from './context/SignedInContext';
+import { useState } from 'react';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <HomePage/>,
+    errorElement: <ErrorPage/>
+  },
+  {
+    path: "/explore",
+    element:<div>Explore!</div>,
+    errorElement: <ErrorPage/>
+  },
+  {
+    path: "/about",
+    element: <div>about</div>,
+    errorElement: <ErrorPage/>
+  },
+  {
+    path: "/project/:id",
+    element: <div>Project page</div>,
+    errorElement: <ErrorPage/>
+  },
+]);
 
 function App() {
+
+  const [signedInUser, setSignedInUser] = useState((localStorage.getItem("access_token") == null ? false : true));
+
   return (
     <div>
-      <NavBar/>
-      <HomePage/>
+      <SignedInContext.Provider value={{signedInUser, setSignedInUser}}>
+        <NavBar/>
+        <RouterProvider router={router}/>
+      </SignedInContext.Provider>
     </div>
     
   );

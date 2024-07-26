@@ -28,7 +28,7 @@ type ProjectCheck struct {
 }
 
 type Project struct {
-	// Id        string   `json:"_id"        bson:"_id,omitempty"`
+	Id          string   `json:"id"        bson:"_id,omitempty"`
 	Name        string   `json:"name"        bson:"name,omitempty"`
 	Description string   `json:"description" bson:"description,omitempty"`
 	Category    string   `json:"category"    bson:"category,omitempty"`

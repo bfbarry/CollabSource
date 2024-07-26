@@ -7,14 +7,15 @@ export interface UserRegisterRequestBody {
 }
 
 export interface UserPatchRequestBody {
-    name: string;
-    description: string;
-    skills: string[];
+    name : string;
+    description : string;
+    skills : string[];
 }
 
 export interface Project {
-    name       : string;
-    description: string;
-    category   : string;
-    tags       : string[];
+    id : string,
+    name : string;
+    description : string;
+    category : string;
+    tags : string[];
   }
