@@ -11,7 +11,7 @@ interface DecodedToken {
 const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('Authorization');
 
-  if (token === undefined) {
+  if (token === undefined || token === "public") {
     req.email = "public"
     next();
     return

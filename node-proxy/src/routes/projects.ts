@@ -24,7 +24,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const response: AxiosResponse<Project[]> = await axiosBase.get<Project[]>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, { headers });
     const project: Project[] = response.data;
-    res.status(200).json(project )
+    res.status(200).json(project)
 
   } catch (error) {
     res.status(error.response.status).json({ message: error.response.data})

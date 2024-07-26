@@ -25,6 +25,8 @@ router.post('/register', async (req: Request<object, object, UserRegisterRequest
     } catch (error) {
         if (error.response.status === 422) {
             res.status(error.response.status).json({ message: 'Failed to register user' });
+        } else {
+            res.status(error.response.status).json({ message: 'Something went wrong'});
         } 
     }  
 });
@@ -42,7 +44,7 @@ router.post('/login', async (req: Request, res: Response) => {
         await axiosBase.post(`${BASE_PATH}/login`, { email, password });
     } catch (error) {
         console.log(error)
-            return res.status(error.response.status).json({ message: error.response.data });
+        return res.status(error.response.status).json({ message: error.response.data });
     }  
 
     const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
