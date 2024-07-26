@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import SignUpModal from './SignUpModal';
+import './SignUpButtonAndModal.css'; 
 
 const SignUpButton: React.FC = () => { 
 
@@ -10,7 +11,7 @@ const SignUpButton: React.FC = () => {
             {
                 showSignUp && <SignUpModal setShowSignUp={setShowSignUp}/>
             }
-            <button onClick={() => setShowSignUp(true)}>Sign Up</button>
+            <button id="sign-up-button" onClick={() => setShowSignUp(true)}>Sign Up</button>
         </div>
     );
 }

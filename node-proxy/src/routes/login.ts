@@ -25,6 +25,8 @@ router.post('/register', async (req: Request<object, object, UserRegisterRequest
     } catch (error) {
         if (error.response.status === 422) {
             res.status(error.response.status).json({ message: 'Failed to register user' });
+        } else {
+            res.status(error.response.status).json({ message: 'Something went wrong'});
         } 
     }  
 });
