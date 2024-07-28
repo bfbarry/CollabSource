@@ -16,8 +16,8 @@ const NavBar: React.FC = (setLogedInUser) => {
             <div id="left-nav-items">
                 <a id="title" href="/">CollabSource</a>
                 <NavBarButton text="Explore" pathToPage="/explore"/>
-                {/* <NavBarButton text="About" pathToPage=""/>
-                <NavBarButton text="Other" pathToPage=""/> */}
+                <NavBarButton text="About" pathToPage=""/>
+                <NavBarButton text="Other" pathToPage=""/>
             </div>
             {!signedIn.signedInUser ?
                 <div id="right-nav-items">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './HomePage.css';
-import ProjectTile from './Components/ProjectTile/ProjectTile';
+import ProjectTile from './Components/ProjectTiles/ProjectTile';
+import CreateProjectTile from './Components/ProjectTiles/CreateProjectTile';
 import ScrollingTextBanner from '../ScrollingTextBanner/ScrollingTextBanner';
 import SearchSection from './Components/SearchSection';
 import axiosBase from '../../config/axiosConfig'
@@ -18,7 +19,7 @@ const HomePage: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
 
     useEffect(() => {
-        axiosBase.get('/projects?page=1&size=4')
+        axiosBase.get('/projects?page=1&size=3')
         .then(response => {
             console.log(response)
             setProjects(response.data.data)
@@ -28,15 +29,20 @@ const HomePage: React.FC = () => {
         })
         return 
       }, []);
+
     return(
         <div>    
             <SearchSection/>
             <div id="explore-projects-section">
-                <h2>Explore Open Projects</h2>
                 <div id="project-tiles-section">
-                    {projects.map((value) => (
-                            <ProjectTile name={value.name} description={value.description} category={value.category} tags={value.tags} id={value.id}/>
-                    ))}
+                <CreateProjectTile/>
+                {projects.map((value) => (
+                    <ProjectTile name={value.name} 
+                    description={value.description} 
+                    category={value.category} 
+                    tags={value.tags} 
+                    id={value.id}/>
+                ))}
                 </div>
             </div>
             <div id="scroll-container">

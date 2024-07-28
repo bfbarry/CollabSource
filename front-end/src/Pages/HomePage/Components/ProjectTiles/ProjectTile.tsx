@@ -15,13 +15,13 @@ const ProjectTile: React.FC<Props> = ({name, description, category, tags,id}) =>
     let navigate = useNavigate();
 
     return(
-        <button onClick={() => {navigate(`/project/${id}`)}} id = 'project-tile-button'>
-            <div id = "project-tile">
+        <div className="project-tile demo-project">
+            <button onClick={() => {navigate(`/project/${id}`)}} className='project-tile-button'>
                 <h3>{name}</h3>
-                <p id="project-tile-description">{description}</p>
-                <p id="project-tile-description"><b>Seeking:</b> Position1, Position2</p>
-            </div>
-         </button>
+                <p className="project-tile-description">{description}</p>
+                <p className="project-tile-description"><b>Seeking:</b> Position1, Position2</p>
+            </button>
+        </div>
     );
 }
 

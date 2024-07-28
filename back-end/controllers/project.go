@@ -215,6 +215,6 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-
+	log.Println("We good!!\n\n\n")
 	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
 }

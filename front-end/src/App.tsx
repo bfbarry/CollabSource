@@ -2,6 +2,7 @@ import './App.css';
 import './Pages/HomePage/HomePage';
 import HomePage from './Pages/HomePage/HomePage';
 import NavBar from './Pages/NavBar/NavBar';
+import CreateProject from './Pages/CreateProject/CreateProject';
 import ErrorPage from './error-page';
 import {
   createBrowserRouter,
@@ -29,6 +30,11 @@ const router = createBrowserRouter([
   {
     path: "/project/:id",
     element: <div>Project page</div>,
+    errorElement: <ErrorPage/>
+  },
+  {
+    path: "/create_project",
+    element: <CreateProject/>,
     errorElement: <ErrorPage/>
   },
 ]);
