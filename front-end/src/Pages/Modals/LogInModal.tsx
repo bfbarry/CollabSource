@@ -1,7 +1,7 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
-import axiosBase from '../../../config/axiosConfig'
-import { AuthContext } from '../../../context/AuthContext';
-import './LogInButtonAndModal.css'
+import axiosBase from '../../config/axiosConfig'
+import { AuthContext } from '../../context/AuthContext';
+import './Modal.css'
 interface Props {
     SetShowLogIn: Dispatch<SetStateAction<Boolean>>
 }
@@ -62,40 +62,12 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
         });
     };
 
-    const modalStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: '20px',
-        borderRadius: '30px',
-        width: '400px',
-        height: '250px',
-        maxWidth: '80%',
-        maxHeight: '80%',
-        overflow: 'auto',
-        display: 'block'
-    };
-
-    const modalOverlayStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    };
-
     return(
-    <div style={modalOverlayStyle}>
-        <div style={modalStyle}>
+    <div className="modalOverlayStyle">
+        <div className="modalStyleParent modalStyleLogin">
             <div id = "LogInModal-container">
                 <div>
-                    <button id="LogInModalCloseButton" onClick={() => SetShowLogIn(false)}>X</button>
+                    <button className="closeButton" onClick={() => SetShowLogIn(false)}>X</button>
                     <p>Sign In to CollabSource</p>
                 </div>
                 <div id='LogInModal-input-container'>

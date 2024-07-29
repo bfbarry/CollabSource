@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
-import axiosBase from '../../../config/axiosConfig'
-import './SignUpButtonAndModal.css'
+import axiosBase from '../../config/axiosConfig'
+import './Modal.css'
 
 
 interface Props {
@@ -88,34 +88,6 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
         });
     };
 
-    const modalStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: '20px',
-        borderRadius: '30px',
-        width: '400px',
-        height: '350px',
-        maxWidth: '80%',
-        maxHeight: '80%',
-        overflow: 'auto',
-        display: 'block'
-      };
-
-      const modalOverlayStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      };
-
       const getInputStyle = (color:string): React.CSSProperties => {
         return {
           borderColor: color,
@@ -126,9 +98,9 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
       };
 
     return(
-    <div style={modalOverlayStyle}>
-       <div style={modalStyle}>
-       <button id="sign-up-modal-close-button" onClick={() => setShowSignUp(false)}>X</button>
+    <div className="modalOverlayStyle">
+       <div className="modalStyleParent modalStyleSignup">
+       <button className="closeButton" onClick={() => setShowSignUp(false)}>X</button>
         <div id="sign-up-modal-container">
             <p>Sign Up for CollabSource</p>
             <div id="sign-up-modal-input-container">

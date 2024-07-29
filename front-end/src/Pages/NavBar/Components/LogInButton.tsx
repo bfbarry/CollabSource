@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import LogInModal from './LogInModal';
-import "./LogInButtonAndModal.css"
+import LogInModal from '../../Modals/LogInModal';
+import "./buttons.css"
 
 const LogInButton: React.FC = () => { 
 

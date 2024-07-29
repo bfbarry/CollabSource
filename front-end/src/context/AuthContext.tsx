@@ -46,6 +46,8 @@ interface Props {
 }
 export const AuthContextProvider = ({ children }: Props) => {
     const [state, authDispatch] = useReducer(authReducer, init_state)
+    
+    // only runs when this context renders
 	useEffect(() => {
 		const user = JSON.parse(localStorage.getItem("auth_context_state") || JSON.stringify(init_state))
 		if (user.loggedIn ) {
