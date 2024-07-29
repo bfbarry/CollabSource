@@ -15,7 +15,6 @@ const PROJECT_BASE_PATH = '/api/v1/projects'
 
 
 router.get('/', async (req: Request, res: Response) => {
-  console.log(req.query)
   const headers = {
     'userEmail': `${req.email}`
   }

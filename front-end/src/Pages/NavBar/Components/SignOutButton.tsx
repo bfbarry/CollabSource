@@ -1,13 +1,13 @@
 import React, { useContext } from 'react';
-import { SignedInContext } from '../../../context/SignedInContext';
+import { AuthContext } from '../../../context/AuthContext';
 
 const SignOutButton: React.FC = () => { 
 
-    const signedIn = useContext(SignedInContext)
+    const { authDispatch } = useContext(AuthContext)
 
     const signOut = () => {
-        localStorage.removeItem("access_token");
-        signedIn.setSignedInUser(false);
+        localStorage.removeItem("auth_context_state");
+        authDispatch({ type: 'LOG_OUT' })
     }
 
     return(

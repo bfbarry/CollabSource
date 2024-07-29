@@ -8,7 +8,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { SignedInContext } from './context/SignedInContext';
+import { AuthContext } from './context/AuthContext';
 import { useState } from 'react';
 
 const router = createBrowserRouter([
@@ -41,14 +41,10 @@ const router = createBrowserRouter([
 
 function App() {
 
-  const [signedInUser, setSignedInUser] = useState((localStorage.getItem("access_token") == null ? false : true));
-
   return (
     <div>
-      <SignedInContext.Provider value={{signedInUser, setSignedInUser}}>
-        <NavBar/>
-        <RouterProvider router={router}/>
-      </SignedInContext.Provider>
+      <NavBar/>
+      <RouterProvider router={router}/>
     </div>
     
   );

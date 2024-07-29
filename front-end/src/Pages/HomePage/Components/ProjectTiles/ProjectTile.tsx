@@ -1,16 +1,12 @@
 import React from 'react';
 import './ProjectTile.css';
 import { useNavigate } from "react-router-dom";
+import { ProjectBase } from "../../../../types/project"
 
-interface Props {
-    id: string;
-    name       : string;
-    description: string;
-    category   : string;
-    tags       : string[];
+interface ProjectTileProps extends ProjectBase {
+  id: string;
 }
-
-const ProjectTile: React.FC<Props> = ({name, description, category, tags,id}) => {
+const ProjectTile: React.FC<ProjectTileProps> = ({name, description, category, tags,id}) => {
 
     let navigate = useNavigate();
 

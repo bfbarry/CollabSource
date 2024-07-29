@@ -1,6 +1,6 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
 import axiosBase from '../../../config/axiosConfig'
-import { SignedInContext } from '../../../context/SignedInContext';
+import { AuthContext } from '../../../context/AuthContext';
 import './LogInButtonAndModal.css'
 interface Props {
     SetShowLogIn: Dispatch<SetStateAction<Boolean>>
@@ -18,7 +18,7 @@ interface FormFieldsError {
 
 const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
 
-    const signedIn = useContext(SignedInContext)
+    const { authDispatch } = useContext(AuthContext)
 
     const [formData, setFormData ] = useState<UserLoginRequestBody>({
         password: '',
@@ -42,16 +42,14 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
             })
         }
         try {
-        const response = await axiosBase.post(`http://localhost:8000/auth/login`, { email: formData.email, password : formData.password });
+        const response = await axiosBase.post(`/auth/login`, { email: formData.email, password : formData.password });
         // console.log(response.data.token)
-        localStorage.setItem("access_token", response.data.token);
-        signedIn.setSignedInUser(true); // for context in entire app
+        const user = { userID: formData.email, token: response.data.token, loggedIn: true}
+        localStorage.setItem("auth_context_state", JSON.stringify(user));
+        authDispatch({ type: 'LOG_IN', payload: user });
+        // authContext.setEmail(formData.email);
         SetShowLogIn(false)
         } catch (error){
-            setFormData({ 
-                password: '',
-                email: ''
-            })
             setLogInError("Invalid username or password")
         }
     }

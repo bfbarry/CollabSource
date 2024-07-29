@@ -21,7 +21,6 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         axiosBase.get('/projects?page=1&size=3')
         .then(response => {
-            console.log(response)
             setProjects(response.data.data)
         })
         .catch(error => {
@@ -37,11 +36,14 @@ const HomePage: React.FC = () => {
                 <div id="project-tiles-section">
                 <CreateProjectTile/>
                 {projects.map((value) => (
-                    <ProjectTile name={value.name} 
+                    <ProjectTile 
+                    key={value.id}
+                    name={value.name} 
                     description={value.description} 
                     category={value.category} 
                     tags={value.tags} 
-                    id={value.id}/>
+                    id={value.id}
+                    />
                 ))}
                 </div>
             </div>

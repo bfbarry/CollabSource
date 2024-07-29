@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { AuthContextProvider } from './context/AuthContext';
 // import ErrorPage from './error-page';
 // import {
 //   createBrowserRouter,
@@ -21,8 +22,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
-    {/* <RouterProvider router={router} /> */}
+    <AuthContextProvider>
+      <App />
+      {/* <RouterProvider router={router} /> */}
+    </AuthContextProvider>
   </React.StrictMode>
 );
 
