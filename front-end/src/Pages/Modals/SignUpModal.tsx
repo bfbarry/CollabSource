@@ -98,22 +98,22 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
       };
 
     return(
-    <div className="modalOverlayStyle">
+    <div className="modalBackdrop">
        <div className="modalStyleParent modalStyleSignup">
        <button className="closeButton" onClick={() => setShowSignUp(false)}>X</button>
         <div id="sign-up-modal-container">
             <p>Sign Up for CollabSource</p>
             <div id="sign-up-modal-input-container">
                 <input style={getInputStyle(missingFields.name.color)} type="text" name="name" placeholder="name" value={formData.name} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.name.message}</div>
+                <div className='errorMessage'>{missingFields.name.message}</div>
                 <input style={getInputStyle(missingFields.email.color)} type="text"  name="email" placeholder="email" value={formData.email} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.email.message}</div>
+                <div className='errorMessage'>{missingFields.email.message}</div>
                 <input style={getInputStyle(missingFields.description.color)} type="text" name="description" placeholder="description (2-3 sentences)" value={formData.description} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.description.message}</div>
+                <div className='errorMessage'>{missingFields.description.message}</div>
                 <input style={getInputStyle(missingFields.password.color)} type="text" name="password" placeholder="password" value={formData.password} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.password.message}</div>
+                <div className='errorMessage'>{missingFields.password.message}</div>
                 <button type="submit" onClick={register}>Sign Up</button>
-                <div className='SignUpModalError'>{signUpError}</div>
+                <div className='errorMessage'>{signUpError}</div>
             </div>
         </div>
 

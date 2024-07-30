@@ -63,7 +63,7 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
     };
 
     return(
-    <div className="modalOverlayStyle">
+    <div className="modalBackdrop">
         <div className="modalStyleParent modalStyleLogin">
             <div id = "LogInModal-container">
                 <div>
@@ -72,16 +72,16 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
                 </div>
                 <div id='LogInModal-input-container'>
                     <input type="text"  name="email" placeholder="email" value={formData.email} onChange={handleChange}/>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <div className='errorMessage'>
                         {formFieldError.emailError}
                     </div>
                 
                     <input type="text" name="password" placeholder="password" value={formData.password} onChange={handleChange}/>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <div className='errorMessage'>
                         {formFieldError.passwordError}
                     </div>
                     <button type="submit" onClick={login}>Sign In</button>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <div className='errorMessage'>
                         {logInError}
                     </div>
                 </div>
