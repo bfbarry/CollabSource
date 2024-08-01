@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "log"
+	// "fmt"
 
 	"github.com/bfbarry/CollabSource/back-end/routes"
 	"github.com/bfbarry/CollabSource/back-end/server"

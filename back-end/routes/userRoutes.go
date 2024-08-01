@@ -2,7 +2,6 @@ package routes
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/bfbarry/CollabSource/back-end/controllers"
@@ -40,13 +39,13 @@ func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	UUID := r.Header.Get("UUID")
 	switch r.Method {
 	case http.MethodGet:
-		log.Println("GET /user")
+		fmt.Println("GET /user")
 		self.controller.GetUserByID(w, UUID, id)
 	case http.MethodPatch:
-		log.Println("PATCH /user")
+		fmt.Println("PATCH /user")
 		self.controller.UpdateUser(w, UUID, id, r)
 	case http.MethodDelete:
-		log.Println("DELETE /user")
+		fmt.Println("DELETE /user")
 		self.controller.DeleteUser(w, UUID, id)
 	default:
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
@@ -56,10 +55,10 @@ func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 func (self *UserRouter) users(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		log.Println("GET /users")
+		fmt.Println("GET /users")
 		self.controller.GetUsers(w, r)
 	case http.MethodPost:
-		log.Println("POST /users")
+		fmt.Println("POST /users")
 		self.controller.GetUsersByQuery(w, r)
 		//TODO Methods and structs for getting data by query
 		// implementation: pass in multiple user IDs
@@ -82,7 +81,7 @@ func (self *UserRouter) login(w http.ResponseWriter, r *http.Request) {
 func (self *UserRouter) register(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		log.Println("POST /register")
+		fmt.Println("POST /register")
 		self.controller.Register(w, r)
 	default:
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))

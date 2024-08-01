@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -33,7 +33,7 @@ func init() {
 	defaultProjectController = &ProjectController{repository: repository.GetMongoRepository()}
 }
 
-func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request, UserUUID string) {
+func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
 
 	projectEntity := model.Project{}
 	if err := json.NewDecoder(r.Body).Decode(&projectEntity); err != nil {
@@ -45,15 +45,13 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid payload"))
 		return
 	}
-
-	projectEntity.OwnerEmail = UserUUID
-
-	if err := self.repository.Insert(PROJECT_COLLECTION, projectEntity); err != nil {
+	id, err := self.repository.Insert(PROJECT_COLLECTION, projectEntity)
+	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
 		return
 	}
 
-	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
+	responseEntity.SendRequest(w, http.StatusOK, []byte(id.Hex()))
 }
 
 func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, userUUID string) {
@@ -76,8 +74,8 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, 
 		return
 	}
 
-	if projectEntity.OwnerEmail != userUUID {
-		projectEntity.OwnerEmail = ""
+	if projectEntity.OwnerId != userUUID {
+		projectEntity.OwnerId = ""
 	}
 
 	jsonResponse, jsonerr := json.Marshal(projectEntity)
@@ -108,7 +106,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if ProjectCheck.OwnerEmail != userUUID {
+	if ProjectCheck.OwnerId.String() != userUUID {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}
@@ -117,7 +115,7 @@ func (self *ProjectController) UpdateProject(w http.ResponseWriter, id string, r
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&projectEntity); err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		if strings.Contains(err.Error(), "json: unknown field") {
 			responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Unexpected fields in JSON"))
 			return
@@ -164,7 +162,7 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string, u
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if ProjectCheck.OwnerEmail != userUUID {
+	if ProjectCheck.OwnerId.String() != userUUID {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}

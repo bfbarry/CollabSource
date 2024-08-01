@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { secretKey, axiosBase } from '../config'
 import { UserRegisterRequestBody } from '../types/types'
 import cors from 'cors';
+import { AxiosResponse } from 'axios';
 
 const router = express.Router()
 router.use(cors());
@@ -41,14 +42,13 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     try {
-        await axiosBase.post(`${BASE_PATH}/login`, { email, password });
+        const response: AxiosResponse<string> = await axiosBase.post(`${BASE_PATH}/login`, { email, password });
+        const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
+        res.status(200).json({ token, userId: response.data });
     } catch (error) {
         console.log(error)
         return res.status(error.response.status).json({ message: error.response.data });
     }  
-
-    const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
-    res.status(200).json({ token });
 });
 
 export default router

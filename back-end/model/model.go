@@ -5,7 +5,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 type Model interface{}
 
 type UserCheck struct {
-	Email string `json:"email"       bson:"email,omitempty"`
+	Id primitive.ObjectID `json:"id"       bson:"id,omitempty"`
 }
 
 type PublicUser struct {
@@ -24,16 +24,16 @@ type User struct {
 }
 
 type ProjectCheck struct {
-	OwnerEmail string `json:"ownerEmail"  bson:"ownerEmail,omitempty"`
+	OwnerId primitive.ObjectID `json:"ownerId"  bson:"ownerId,omitempty"`
 }
 
 type Project struct {
-	Id          primitive.ObjectID   `json:"id"        bson:"_id,omitempty"`
+	Id          primitive.ObjectID   `json:"_id"        bson:"_id,omitempty"`
 	Name        string   `json:"name"        bson:"name,omitempty"`
 	Description string   `json:"description" bson:"description,omitempty"`
 	Category    string   `json:"category"    bson:"category,omitempty"`
 	Tags        []string `json:"tags"        bson:"tags,omitempty"`
-	OwnerEmail  string   `json:"ownerEmail"  bson:"ownerEmail,omitempty"`
+	OwnerId  string   `json:"ownerId"  bson:"ownerId,omitempty"`
 	// DateCreated string
 	// Creator string
 	// Admins []string

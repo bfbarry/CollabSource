@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/mongoClient"
@@ -31,15 +31,19 @@ func (self *Repository) getCollection(coll string) *mongo.Collection {
 	return self.mongoClient.Collection(coll)
 }
 
-func (self *Repository) Insert(coll string, obj model.Model) error {
+func (self *Repository) Insert(coll string, obj model.Model) (primitive.ObjectID, error) {
 
 	res, mongoerr := self.getCollection(coll).InsertOne(context.TODO(), obj)
 	if mongoerr != nil {
-		log.Printf("Error inserting object e message: %s", mongoerr)
-		return mongoerr
+		fmt.Printf("Error inserting object e message: %s", mongoerr)
+		return primitive.NilObjectID, mongoerr
 	}
-	log.Printf("inserted document with ID %v\n", res.InsertedID)
-	return nil
+	switch val := res.InsertedID.(type) { //"type switch"
+	case primitive.ObjectID:
+		return val, nil
+	default:
+		return primitive.NilObjectID, fmt.Errorf("Expected an ObjectID, received %T instead", val)
+	}
 }
 
 func (self *Repository) FindByID(coll string, id primitive.ObjectID, obj model.Model) error {
@@ -112,7 +116,7 @@ func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum
 	}
 
 	if err := cursor.All(context.TODO(), results); err != nil {
-		log.Printf(err.Error())
+		fmt.Printf(err.Error())
 		return err
 	}
 

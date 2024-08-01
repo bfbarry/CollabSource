@@ -4,6 +4,8 @@ import { ProjectBase } from "../../types/project"
 import PromptAccount from '../modals/PromptAccount'
 import axiosBase from '../../config/axiosConfig'
 import '../modals/Modal.css'
+import { useNavigate } from 'react-router-dom'
+import { AxiosResponse } from 'axios'
 
 interface FormFieldsError {
   nameErr: string
@@ -20,11 +22,12 @@ interface ProjectForm {
 }
 
 interface PostData extends ProjectBase {
-  ownerEmail: string
+  ownerId: string
 }
 
 const CreateProject:React.FC = () => {
-  const { loggedIn, userID } = useContext(AuthContext);
+  const navigate = useNavigate()
+  const { loggedIn, userID } = useContext(AuthContext)
   const [showPromptAccount, setShowPromptAccount ] = useState<Boolean>(false)
 
   const [formData, setFormData] = useState<ProjectForm>({
@@ -40,7 +43,6 @@ const CreateProject:React.FC = () => {
   const categories = ['business', 'software engineering', 'art'] // TODO get from backend?
 
   const checkFormError = () => {
-
     let newState: FormFieldsError = { ...noErrorObj }
     const {name, description, tags} = formData
     // TODO define these in some config
@@ -107,14 +109,20 @@ const CreateProject:React.FC = () => {
     }
     // TODO check form errors
     if (checkFormError()) {
-      console.log('no \n\n\n')
       return
     }
     const tagArr = formData.tags.split(',').map(e => e.trim())
 
-    const postData : PostData = { name: formData.name, description: formData.description, category: formData.category, tags: tagArr, ownerEmail: userID}
+    const postData : PostData = { 
+      name:        formData.name, 
+      description: formData.description, 
+      category:    formData.category, 
+      tags:        tagArr, 
+      ownerId:     userID
+    }
     try {
-      await axiosBase.post(`/project`, postData);
+      const id: AxiosResponse<string> = await axiosBase.post(`/project`, postData);
+      navigate(`/project/${id}`, {state: postData})
     } catch (err) {
       setSubmitError("An error occurred")
     }
