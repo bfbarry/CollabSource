@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
 import axiosBase from '../../config/axiosConfig'
 import './Modal.css'
+import useLogin from '../../hooks/useLogin';
 
 
 interface Props {
@@ -36,6 +37,8 @@ interface MissingFieldType{
 
 const SignUpModal: React.FC<Props> = ({setShowSignUp}) => { 
     const [ signUpError, setSignUpError ] = useState<String>("");
+    const { login } = useLogin()
+
     const [ formData, setFormData ] = useState<UserRequestBody>({
         name: '',
         password: '',
@@ -65,7 +68,8 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
         const response = await axiosBase.post(`/auth/register`, 
         { email: formData.email, password : formData.password, description: formData.description, name: formData.name });
         setShowSignUp(false);
-        } catch (error){
+        login(formData.email, formData.password)
+        } catch (error){ // TODO should get this automatically from API?
             if (axios.isAxiosError(error)) {
                 const axiosError = error as AxiosError;
                 const statusCode = axiosError.response?.status;

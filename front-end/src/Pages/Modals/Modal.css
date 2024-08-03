@@ -124,3 +124,31 @@
 .modalStyleSignup {
     height: 350px;
 }
+
+.buttonParent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.promptButton{
+    font-style: normal;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 33px;
+    border: none;
+    border-radius: 10px;
+}
+
+.promptButton:hover{
+    cursor: pointer;
+}
+
+.login {
+    color: white;
+    background-color: #4646D7;
+}
+
+.signUp {
+    color: white;
+    background-color: #cb46d7;
+}

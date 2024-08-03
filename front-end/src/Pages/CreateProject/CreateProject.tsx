@@ -7,6 +7,9 @@ import './CreateProject.css'
 import { useNavigate } from 'react-router-dom'
 import { AxiosResponse } from 'axios'
 import checkFormError  from './errorHandling'
+import LogInModal from '../modals/LogInModal'
+import SignUpModal from '../modals/SignUpModal'
+
 
 export interface FormFieldsError {
   nameErr: string
@@ -32,7 +35,9 @@ const CreateProject:React.FC = () => {
   const navigate = useNavigate()
   const { loggedIn, userID } = useContext(AuthContext)
   const [showPromptAccount, setShowPromptAccount ] = useState<Boolean>(false)
-
+  const [showLogin, setShowLogin ] = useState<Boolean>(false)
+  const [showSignUp, setShowSignUp ] = useState<Boolean>(false)
+  
   const [formData, setFormData] = useState<ProjectForm>({
     name       : '',
     description: '',
@@ -142,8 +147,18 @@ const CreateProject:React.FC = () => {
       </div>
       {showPromptAccount &&
         <PromptAccount 
-          SetShowPromptAccount={setShowPromptAccount}
+          setShowPromptAccount={setShowPromptAccount}
+          setShowLogIn={setShowLogin}
+          setShowSignUp={setShowSignUp}
           />
+      }
+      {
+        showLogin &&
+        <LogInModal SetShowLogIn={setShowLogin}/>
+      }
+      {
+        showSignUp &&
+        <SignUpModal setShowSignUp={setShowSignUp}/>
       }
     </div>
 

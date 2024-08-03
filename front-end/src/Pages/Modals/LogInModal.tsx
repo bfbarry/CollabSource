@@ -2,6 +2,7 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useContext, useState } fr
 import axiosBase from '../../config/axiosConfig'
 import { AuthContext } from '../../context/AuthContext';
 import './Modal.css'
+import useLogin from '../../hooks/useLogin';
 interface Props {
     SetShowLogIn: Dispatch<SetStateAction<Boolean>>
 }
@@ -23,7 +24,7 @@ interface AuthResponse {
 
 const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
 
-    const { authDispatch } = useContext(AuthContext)
+    const { login, logInError} = useLogin()
 
     const [formData, setFormData ] = useState<UserLoginRequestBody>({
         password: '',
@@ -31,9 +32,8 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
     })
     const [formFieldError, setFormFieldError] = useState<FormFieldsError>({emailError:"",passwordError:""});
 
-    const [logInError, setLogInError] = useState<String>("");
 
-    const login = async () => {
+    const onLoginClick = async () => {
         if (formData.email === "" || formData.password === "" ) {
             setFormFieldError({
                 emailError: !formData.email ? "Missing email" : "" ,
@@ -46,17 +46,10 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
                 passwordError: "" 
             })
         }
-        try {
-        const response = await axiosBase.post<AuthResponse>(`/auth/login`, { email: formData.email, password : formData.password });
-        // console.log(response.data.token)
-        const user = { userID: response.data.userId, token: response.data.token, loggedIn: true}
-        localStorage.setItem("auth_context_state", JSON.stringify(user));
-        authDispatch({ type: 'LOG_IN', payload: user });
-        // authContext.setEmail(formData.email);
-        SetShowLogIn(false)
-        } catch (error){
-            setLogInError("Invalid username or password")
-        }
+        login(formData.email, formData.password)
+        if (logInError === '') {
+            SetShowLogIn(false)
+        } 
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -85,7 +78,7 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
                     <div className='errorMessage'>
                         {formFieldError.passwordError}
                     </div>
-                    <button type="submit" onClick={login}>Sign In</button>
+                    <button type="submit" onClick={onLoginClick}>Sign In</button>
                     <div className='errorMessage'>
                         {logInError}
                     </div>

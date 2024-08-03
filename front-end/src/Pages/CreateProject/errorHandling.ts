@@ -36,7 +36,7 @@ const checkFormError = (noErrorObj: FormFieldsError, formData: ProjectForm, setF
     }
   }
 
-  const seekingArr = tags.split(',').map(e => e.trim())
+  const seekingArr = tags.split(',').map(e => e.trim()) // split on any empty string gives ['']
   if (seekingArr.length === 1 && seekingArr[0] === '') {
     newState.seekingErr = `must have at least ${seekingArrMin} role`
   } else if (seekingArr.length > seekingArrMax) {
