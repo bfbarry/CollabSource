@@ -5,18 +5,12 @@ import CreateProjectTile from './Components/ProjectTiles/CreateProjectTile';
 import ScrollingTextBanner from '../ScrollingTextBanner/ScrollingTextBanner';
 import SearchSection from './Components/SearchSection';
 import axiosBase from '../../config/axiosConfig'
+import { ProjectWId } from '../../types/project';
 
-interface Project {
-    id: string;
-    name       : string;
-    description: string;
-    category   : string;
-    tags       : string[];
-}
 
 const HomePage: React.FC = () => {
     
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [projects, setProjects] = useState<ProjectWId[]>([]);
 
     useEffect(() => {
         axiosBase.get('/projects?page=1&size=3')
@@ -37,12 +31,13 @@ const HomePage: React.FC = () => {
                 <CreateProjectTile/>
                 {projects.map((value) => (
                     <ProjectTile 
-                    key={value.id}
+                    key={value._id}
+                    _id={value._id}
                     name={value.name} 
                     description={value.description} 
                     category={value.category} 
                     tags={value.tags} 
-                    id={value.id}
+                    seeking={value.seeking}
                     />
                 ))}
                 </div>

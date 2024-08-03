@@ -23,8 +23,8 @@ router.post('/', async (req: Request<object, object, Project>, res: Response) =>
 
   try {
     const project: Project = req.body;
-    await axiosBase.post<Project>(`${PROJECT_BASE_PATH}/create`, project, {headers});
-    res.status(200).json({ msg: "success" })
+    const response: AxiosResponse<string> = await axiosBase.post<string>(`${PROJECT_BASE_PATH}/create`, project, {headers});
+    res.status(200).json(response.data)
 
   } catch (error) {
     res.status(error.response.status).json({ message: error.response.data})
@@ -69,7 +69,7 @@ router.delete('/:id', async (req: Request<{id: string}, object, Project>, res: R
   }
   let response : AxiosResponse<object>
   try {
-    response = await axiosBase.delete<Project>(`${PROJECT_BASE_PATH}/${id}`, { headers });
+    response = await axiosBase.delete(`${PROJECT_BASE_PATH}/${id}`, { headers });
     res.status(response.status).json({ msg: "success" })
 
   } catch (error) {

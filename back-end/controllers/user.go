@@ -76,6 +76,7 @@ func (self *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	err := self.repository.FindOne(USER_COLLECTION, filter, user)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("incorrect email"))
+		fmt.Println("bad email", loginFields.Email)
 		return
 	}
 

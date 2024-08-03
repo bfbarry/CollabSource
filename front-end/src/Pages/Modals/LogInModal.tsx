@@ -16,6 +16,11 @@ interface FormFieldsError {
     passwordError: string
 }
 
+interface AuthResponse {
+    token: string,
+    userId: string
+}
+
 const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
 
     const { authDispatch } = useContext(AuthContext)
@@ -42,9 +47,9 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
             })
         }
         try {
-        const response = await axiosBase.post(`/auth/login`, { email: formData.email, password : formData.password });
+        const response = await axiosBase.post<AuthResponse>(`/auth/login`, { email: formData.email, password : formData.password });
         // console.log(response.data.token)
-        const user = { userID: formData.email, token: response.data.token, loggedIn: true}
+        const user = { userID: response.data.userId, token: response.data.token, loggedIn: true}
         localStorage.setItem("auth_context_state", JSON.stringify(user));
         authDispatch({ type: 'LOG_IN', payload: user });
         // authContext.setEmail(formData.email);

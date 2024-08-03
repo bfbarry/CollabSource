@@ -3,4 +3,9 @@ export interface ProjectBase {
   description: string;
   category   : string;
   tags       : string[];
+  seeking    : string[] 
+}
+
+export interface ProjectWId extends ProjectBase {
+  _id: string;
 }

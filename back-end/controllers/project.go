@@ -56,6 +56,7 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 
 func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, userUUID string) {
 	// var op errors.Op = "controllers.GetProjectByID"
+	// TODO return different data if member/admin
 	projectEntity := &model.Project{}
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
@@ -72,10 +73,6 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, 
 	} else if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
-	}
-
-	if projectEntity.OwnerId != userUUID {
-		projectEntity.OwnerId = ""
 	}
 
 	jsonResponse, jsonerr := json.Marshal(projectEntity)

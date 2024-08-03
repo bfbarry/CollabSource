@@ -2,40 +2,45 @@ package model
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
+/*  NOTE
+	struct tags should be separated by one space.
+*/
+
 type Model interface{}
 
 type UserCheck struct {
-	Id primitive.ObjectID `json:"id"       bson:"id,omitempty"`
+	Id primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 }
 
 type PublicUser struct {
-	Name        string   `json:"name"        bson:"name,omitempty"`
+	Name        string   `json:"name" bson:"name,omitempty"`
 	Description string   `json:"description" bson:"description,omitempty"`
-	Skills      []string `json:"skills"      bson:"skills,omitempty"`
+	Skills      []string `json:"skills" bson:"skills,omitempty"`
 }
 
 type User struct {
-	Id          primitive.ObjectID `json:"_id"        bson:"_id,omitempty"`
-	Name        string             `json:"name"        bson:"name,omitempty"`
-	Email       string             `json:"email"       bson:"email,omitempty"`
-	Password    string             `json:"password"    bson:"password,omitempty"`
+	Id          primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
+	Name        string             `json:"name" bson:"name,omitempty"`
+	Email       string             `json:"email" bson:"email,omitempty"`
+	Password    string             `json:"password" bson:"password,omitempty"`
 	Description string             `json:"description" bson:"description,omitempty"`
-	Skills      []string           `json:"skills"      bson:"skills,omitempty"`
+	Skills      []string           `json:"skills" bson:"skills,omitempty"`
 }
 
 type ProjectCheck struct {
-	OwnerId primitive.ObjectID `json:"ownerId"  bson:"ownerId,omitempty"`
+	OwnerId primitive.ObjectID `json:"ownerId" bson:"ownerId,omitempty"`
 }
 
 type Project struct {
-	Id          primitive.ObjectID   `json:"_id"        bson:"_id,omitempty"`
-	Name        string   `json:"name"        bson:"name,omitempty"`
-	Description string   `json:"description" bson:"description,omitempty"`
-	Category    string   `json:"category"    bson:"category,omitempty"`
-	Tags        []string `json:"tags"        bson:"tags,omitempty"`
-	OwnerId  string   `json:"ownerId"  bson:"ownerId,omitempty"`
+	Id          primitive.ObjectID   `json:"_id" bson:"_id,omitempty"`
+	OwnerId  	primitive.ObjectID   `json:"ownerId" bson:"ownerId,omitempty"`
+	Name        string   			 `json:"name" bson:"name,omitempty"`
+	Description string   			 `json:"description" bson:"description,omitempty"`
+	Category    string   			 `json:"category" bson:"category,omitempty"`
+	Tags        []string 			 `json:"tags" bson:"tags,omitempty"`
+	Seeking     []string 			 `json:"seeking" bson:"seeking,omitempty"`
 	// DateCreated string
-	// Creator string
+	// Creator primitive.ObjectID
 	// Admins []string
 	//  []string
 	// Location    string   `json:"location"`
