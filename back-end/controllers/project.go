@@ -213,3 +213,38 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 
 	responseEntity.SendRequest(w, http.StatusOK, jsonResponse)
 }
+
+func (self *ProjectController) SendProjectRequest(w http.ResponseWriter, r *http.Request, userUUID string) {
+	projectRequestEntity := model.ProjectRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&projectRequestEntity); err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+	
+	//check userID exists
+	// TODO should ProjectRequest fields be strings?
+	// userId, err := primitive.ObjectIDFromHex(projectRequestEntity.UserId)
+	// if err != nil {
+	// 	responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+	// 	return
+	// }
+	userEntity := &model.User{}
+	mongoErr := self.repository.FindByID(USER_COLLECTION, projectRequestEntity.UserId, userEntity)
+	if reflect.DeepEqual(*userEntity, model.User{}) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
+		return
+	}
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	//check projectID exists
+}
+
+func (self *ProjectController) GetProjectRequests(w http.ResponseWriter, r *http.Request, projectId string, userUUID string) {
+	//check if UUID == Project(projectId).OwnerId
+}
+
+func (self *ProjectController) RespondToProjectRequest(w http.ResponseWriter, r *http.Request, projectRequestId string, userUUID string) {
+	//check if UUID == Project(projectId).OwnerId
+}

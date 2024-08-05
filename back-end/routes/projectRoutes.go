@@ -29,6 +29,7 @@ func (self *ProjectRouter) initiateProjectRoutes() {
 	endpoints := []Route{}
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/project/{id}", BASE_URL), Handler: self.project})
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/projects", BASE_URL), Handler: self.projects})
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/project_request/{id}", BASE_URL), Handler: self.projectRequests})
 	self.routes = endpoints
 }
 
@@ -68,5 +69,22 @@ func (self *ProjectRouter) projects(w http.ResponseWriter, r *http.Request) {
 		break
 	default:
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
+	}
+}
+
+func (self *ProjectRouter) projectRequests(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	UUID := r.Header.Get("UUID")
+
+	switch r.Method {
+	case http.MethodPost:
+		fmt.Println("POST /project_request")
+		self.controller.SendProjectRequest(w, r, UUID)
+	case http.MethodGet:
+		fmt.Println("GET /project_request")
+		self.controller.GetProjectRequests(w, r, id, UUID)
+	case http.MethodPatch:
+		fmt.Println("GET /project_request")
+		self.controller.GetProjectRequests(w, r, id, UUID)
 	}
 }

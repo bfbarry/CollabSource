@@ -45,3 +45,15 @@ type Project struct {
 	//  []string
 	// Location    string   `json:"location"`
 }
+
+type ProjectRequest struct {
+	Id        primitive.ObjectID   `json:"_id" bson:"_id,omitempty"`
+	UserId    primitive.ObjectID   `json:"userId" bson:"userId,omitempty"`
+	ProjectId primitive.ObjectID   `json:"projectId" bson:"projectId,omitempty"`
+	Message   string 			   `json:"message" bson:"message,omitempty"`
+	// NumVotes int
+	// VotesNeeded == |Project.admins|
+	// Kind: “application” || “invite”
+	// Rejected: bool
+	}
+	
