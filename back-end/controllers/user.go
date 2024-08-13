@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"log"
+	"fmt"
 	"reflect"
 
 	"github.com/bfbarry/CollabSource/back-end/model"
@@ -53,12 +53,13 @@ func (self *UserController) Register(w http.ResponseWriter, r *http.Request) {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("email exists"))
 		return
 	}
-	if err := self.repository.Insert(USER_COLLECTION, userEntity); err != nil {
+	id, err := self.repository.Insert(USER_COLLECTION, userEntity)
+	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
 		return
 	}
 
-	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
+	responseEntity.SendRequest(w, http.StatusOK, []byte(id.Hex()))
 }
 
 func (self *UserController) Login(w http.ResponseWriter, r *http.Request) {
@@ -75,16 +76,17 @@ func (self *UserController) Login(w http.ResponseWriter, r *http.Request) {
 	err := self.repository.FindOne(USER_COLLECTION, filter, user)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("incorrect email"))
+		fmt.Println("bad email", loginFields.Email)
 		return
 	}
 
 	if user.Password != loginFields.Password {
-		log.Println(user.Password, loginFields.Password)
+		fmt.Println(user.Password, loginFields.Password)
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("incorrect password"))
 		return
 	}
 
-	responseEntity.SendRequest(w, http.StatusOK, []byte("success"))
+	responseEntity.SendRequest(w, http.StatusOK, []byte(user.Id.Hex()))
 }
 
 func (self *UserController) GetUserByID(w http.ResponseWriter, userUUID string, id string) {
@@ -101,7 +103,7 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, userUUID string, 
 		return
 	}
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -112,7 +114,7 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, userUUID string, 
 
 	jsonRes, jsonerr := json.Marshal(userEntity)
 	if jsonerr != nil {
-		log.Println("json err")
+		fmt.Println("json err")
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -158,7 +160,7 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 
 	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -199,7 +201,7 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
@@ -232,11 +234,11 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, userUUID string, i
 		return
 	}
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if userCheck.Email != userUUID {
+	if userCheck.Id.String() != userUUID {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}
@@ -249,7 +251,7 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, userUUID string, i
 
 	// TODO other controller for LoginFields
 	if userEntity.Email != "" || userEntity.Password != "" {
-		log.Println("cannot change password in UpdateUser")
+		fmt.Println("cannot change password in UpdateUser")
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid Json"))
 		return
 	}
@@ -283,11 +285,11 @@ func (self *UserController) DeleteUser(w http.ResponseWriter, userUUID string, i
 		return
 	}
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if userCheck.Email != userUUID {
+	if userCheck.Id.String() != userUUID {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}
@@ -295,7 +297,7 @@ func (self *UserController) DeleteUser(w http.ResponseWriter, userUUID string, i
 	// deleteMode := repository.Str2Enum(deleteModeStr)
 	deletedCount, mongoErr := self.repository.Delete(USER_COLLECTION, ObjId)
 	if mongoErr != nil {
-		log.Println(mongoErr)
+		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}

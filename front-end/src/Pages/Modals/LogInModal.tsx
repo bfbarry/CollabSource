@@ -1,7 +1,8 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
-import axiosBase from '../../../config/axiosConfig'
-import { SignedInContext } from '../../../context/SignedInContext';
-import './LogInButtonAndModal.css'
+import axiosBase from '../../config/axiosConfig'
+import { AuthContext } from '../../context/AuthContext';
+import './Modal.css'
+import useLogin from '../../hooks/useLogin';
 interface Props {
     SetShowLogIn: Dispatch<SetStateAction<Boolean>>
 }
@@ -16,9 +17,14 @@ interface FormFieldsError {
     passwordError: string
 }
 
+interface AuthResponse {
+    token: string,
+    userId: string
+}
+
 const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
 
-    const signedIn = useContext(SignedInContext)
+    const { login, logInError} = useLogin()
 
     const [formData, setFormData ] = useState<UserLoginRequestBody>({
         password: '',
@@ -26,9 +32,8 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
     })
     const [formFieldError, setFormFieldError] = useState<FormFieldsError>({emailError:"",passwordError:""});
 
-    const [logInError, setLogInError] = useState<String>("");
 
-    const login = async () => {
+    const onLoginClick = async () => {
         if (formData.email === "" || formData.password === "" ) {
             setFormFieldError({
                 emailError: !formData.email ? "Missing email" : "" ,
@@ -41,19 +46,10 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
                 passwordError: "" 
             })
         }
-        try {
-        const response = await axiosBase.post(`http://localhost:8000/auth/login`, { email: formData.email, password : formData.password });
-        // console.log(response.data.token)
-        localStorage.setItem("access_token", response.data.token);
-        signedIn.setSignedInUser(true); // for context in entire app
-        SetShowLogIn(false)
-        } catch (error){
-            setFormData({ 
-                password: '',
-                email: ''
-            })
-            setLogInError("Invalid username or password")
-        }
+        login(formData.email, formData.password)
+        if (logInError === '') {
+            SetShowLogIn(false)
+        } 
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -64,54 +60,26 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
         });
     };
 
-    const modalStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: '20px',
-        borderRadius: '30px',
-        width: '400px',
-        height: '250px',
-        maxWidth: '80%',
-        maxHeight: '80%',
-        overflow: 'auto',
-        display: 'block'
-    };
-
-    const modalOverlayStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    };
-
     return(
-    <div style={modalOverlayStyle}>
-        <div style={modalStyle}>
+    <div className="modalBackdrop">
+        <div className="modalStyleParent modalStyleLogin">
             <div id = "LogInModal-container">
                 <div>
-                    <button id="LogInModalCloseButton" onClick={() => SetShowLogIn(false)}>X</button>
+                    <button className="closeButton" onClick={() => SetShowLogIn(false)}>X</button>
                     <p>Sign In to CollabSource</p>
                 </div>
                 <div id='LogInModal-input-container'>
                     <input type="text"  name="email" placeholder="email" value={formData.email} onChange={handleChange}/>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <div className='errorMessage'>
                         {formFieldError.emailError}
                     </div>
                 
                     <input type="text" name="password" placeholder="password" value={formData.password} onChange={handleChange}/>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <div className='errorMessage'>
                         {formFieldError.passwordError}
                     </div>
-                    <button type="submit" onClick={login}>Sign In</button>
-                    <div className='LogInModalMissingFieldMessage'>
+                    <button type="submit" onClick={onLoginClick}>Sign In</button>
+                    <div className='errorMessage'>
                         {logInError}
                     </div>
                 </div>

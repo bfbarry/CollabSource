@@ -1,7 +1,7 @@
 package log
 
 import (
-	// native "log"
+	// native "fmt"
 	"fmt"
 	"os"
 	"time"

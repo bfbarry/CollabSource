@@ -1,0 +1,55 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    margin-left: 1vw;
+    margin-right: 1vw;
+    background-image: linear-gradient(45deg, #679DEB , #DDAFF5);
+    border-radius: 10px;
+    padding-left: 0.5vw
+}
+
+.header h2 {
+    font-size: 24px;
+    color: white;
+}
+
+.header h3 {
+    font-size: 18px;
+    color: white;
+}
+
+.projectBorder {
+    margin: 1vw;
+    background-image: linear-gradient(45deg, #679DEB , #DDAFF5);
+    border-radius: 10px;
+}
+
+.projectBody {
+    margin: 0.25vw;
+    padding: 0.5vw;
+    background-color: white;
+    border-radius: 8px;
+}
+
+.tagContainer {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+}
+
+.tag {
+    margin-left: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
+    background-image: linear-gradient(45deg, #4646D7 , #3333a4);
+    height: 3vh;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+

@@ -13,9 +13,11 @@ export interface UserPatchRequestBody {
 }
 
 export interface Project {
-    id : string,
-    name : string;
-    description : string;
-    category : string;
-    tags : string[];
+    id : string
+    ownerId: string
+    name : string
+    description : string
+    category : string
+    tags : string[]
+    seeking: string[]
   }

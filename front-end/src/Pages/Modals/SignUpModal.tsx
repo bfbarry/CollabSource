@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from 'react';
-import axiosBase from '../../../config/axiosConfig'
-import './SignUpButtonAndModal.css'
+import axiosBase from '../../config/axiosConfig'
+import './Modal.css'
+import useLogin from '../../hooks/useLogin';
 
 
 interface Props {
@@ -36,6 +37,8 @@ interface MissingFieldType{
 
 const SignUpModal: React.FC<Props> = ({setShowSignUp}) => { 
     const [ signUpError, setSignUpError ] = useState<String>("");
+    const { login } = useLogin()
+
     const [ formData, setFormData ] = useState<UserRequestBody>({
         name: '',
         password: '',
@@ -65,7 +68,8 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
         const response = await axiosBase.post(`/auth/register`, 
         { email: formData.email, password : formData.password, description: formData.description, name: formData.name });
         setShowSignUp(false);
-        } catch (error){
+        login(formData.email, formData.password)
+        } catch (error){ // TODO should get this automatically from API?
             if (axios.isAxiosError(error)) {
                 const axiosError = error as AxiosError;
                 const statusCode = axiosError.response?.status;
@@ -88,34 +92,6 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
         });
     };
 
-    const modalStyle: React.CSSProperties = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: '#fff',
-        padding: '20px',
-        borderRadius: '30px',
-        width: '400px',
-        height: '350px',
-        maxWidth: '80%',
-        maxHeight: '80%',
-        overflow: 'auto',
-        display: 'block'
-      };
-
-      const modalOverlayStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      };
-
       const getInputStyle = (color:string): React.CSSProperties => {
         return {
           borderColor: color,
@@ -126,22 +102,22 @@ const SignUpModal: React.FC<Props> = ({setShowSignUp}) => {
       };
 
     return(
-    <div style={modalOverlayStyle}>
-       <div style={modalStyle}>
-       <button id="sign-up-modal-close-button" onClick={() => setShowSignUp(false)}>X</button>
+    <div className="modalBackdrop">
+       <div className="modalStyleParent modalStyleSignup">
+       <button className="closeButton" onClick={() => setShowSignUp(false)}>X</button>
         <div id="sign-up-modal-container">
             <p>Sign Up for CollabSource</p>
             <div id="sign-up-modal-input-container">
                 <input style={getInputStyle(missingFields.name.color)} type="text" name="name" placeholder="name" value={formData.name} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.name.message}</div>
+                <div className='errorMessage'>{missingFields.name.message}</div>
                 <input style={getInputStyle(missingFields.email.color)} type="text"  name="email" placeholder="email" value={formData.email} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.email.message}</div>
+                <div className='errorMessage'>{missingFields.email.message}</div>
                 <input style={getInputStyle(missingFields.description.color)} type="text" name="description" placeholder="description (2-3 sentences)" value={formData.description} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.description.message}</div>
+                <div className='errorMessage'>{missingFields.description.message}</div>
                 <input style={getInputStyle(missingFields.password.color)} type="text" name="password" placeholder="password" value={formData.password} onChange={handleChange}/>
-                <div className='SignUpModalError'>{missingFields.password.message}</div>
+                <div className='errorMessage'>{missingFields.password.message}</div>
                 <button type="submit" onClick={register}>Sign Up</button>
-                <div className='SignUpModalError'>{signUpError}</div>
+                <div className='errorMessage'>{signUpError}</div>
             </div>
         </div>
 

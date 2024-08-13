@@ -2,12 +2,14 @@ import './App.css';
 import './Pages/HomePage/HomePage';
 import HomePage from './Pages/HomePage/HomePage';
 import NavBar from './Pages/NavBar/NavBar';
+import CreateProject from './Pages/CreateProject/CreateProject';
+import ProjectPage from './Pages/ProjectPage/ProjectPage';
 import ErrorPage from './error-page';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { SignedInContext } from './context/SignedInContext';
+import { AuthContext } from './context/AuthContext';
 import { useState } from 'react';
 
 const router = createBrowserRouter([
@@ -28,21 +30,22 @@ const router = createBrowserRouter([
   },
   {
     path: "/project/:id",
-    element: <div>Project page</div>,
+    element: <ProjectPage/>,
+    errorElement: <ErrorPage/>
+  },
+  {
+    path: "/create_project",
+    element: <CreateProject/>,
     errorElement: <ErrorPage/>
   },
 ]);
 
 function App() {
 
-  const [signedInUser, setSignedInUser] = useState((localStorage.getItem("access_token") == null ? false : true));
-
   return (
     <div>
-      <SignedInContext.Provider value={{signedInUser, setSignedInUser}}>
-        <NavBar/>
-        <RouterProvider router={router}/>
-      </SignedInContext.Provider>
+      <NavBar/>
+      <RouterProvider router={router}/>
     </div>
     
   );

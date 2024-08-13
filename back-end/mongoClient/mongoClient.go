@@ -3,8 +3,8 @@ package mongoClient
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -44,7 +44,7 @@ func init() {
 		log.Fatal("error connecting to mongodb, will exit program")
 	}
 
-	log.Printf("Successfully connected to mongo at %s", uri)
+	fmt.Printf("Successfully connected to mongo at %s", uri)
 	mongoClient = client
 
 	var result bson.M
@@ -56,7 +56,7 @@ func init() {
 
 func ClosemongoClient() {
 	if err := mongoClient.Disconnect(context.TODO()); err != nil {
-		log.Println("error closing mongodb connection")
+		fmt.Println("error closing mongodb connection")
 		log.Fatal(err)
 	}
 }
