@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import SignUpModal from '../../modals/SignUpModal';
+import SignUpModal from '../../Modals/SignUpModal';
 import './buttons.css'; 
 import { createPortal } from 'react-dom';
 

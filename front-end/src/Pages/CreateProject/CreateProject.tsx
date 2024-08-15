@@ -6,9 +6,9 @@ import './CreateProject.css'
 import { useNavigate } from 'react-router-dom'
 import { AxiosResponse } from 'axios'
 import checkFormError  from './errorHandling'
-import LogInModal from '../modals/LogInModal'
-import SignUpModal from '../modals/SignUpModal'
 import PromptAccount from '../Modals/PromptAccount'
+import LogInModal from '../Modals/LogInModal'
+import SignUpModal from '../Modals/SignUpModal'
 
 
 export interface FormFieldsError {
