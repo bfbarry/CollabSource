@@ -61,12 +61,9 @@ func (self *ProjectRouter) project(w http.ResponseWriter, r *http.Request) {
 func (self *ProjectRouter) projects(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
-	case http.MethodGet:
+	case http.MethodPost:
 		fmt.Println("GET /projects")
 		self.controller.GetProjects(w, r)
-	case http.MethodPost:
-		//TODO Methods and structs for getting data by query
-		break
 	default:
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method Not Allowed"))
 	}

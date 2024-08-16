@@ -193,10 +193,24 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 	}
 
 	var projectEntity []model.Project
+	
+	projectFilter := model.ProjectFilter{}
+	if err := json.NewDecoder(r.Body).Decode(&projectFilter); err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
 	filt := bson.M{}
+	if len(projectFilter.Tags) != 0 {
+		filt["tags"] = bson.M{"$in": projectFilter.Tags}
+	}
+	if len(projectFilter.Categories) != 0 {
+		filt["category"] = bson.M{"$in": projectFilter.Categories}
+	}
+
 	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
 	if mongoErr != nil {
-		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong here"))
+		fmt.Print(mongoErr)
 		return
 	}
 

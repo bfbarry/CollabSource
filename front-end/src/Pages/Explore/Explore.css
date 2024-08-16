@@ -1,0 +1,58 @@
+.filter-parent {
+    margin-left: 1vw;
+    margin-bottom: 0px;
+    padding: 0px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.filter-container select {
+    padding: 1vh;
+    border: none;
+    border:solid 2px #3d3d3d;
+    border-radius: 4px;
+}
+
+.projectContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: start;
+    overflow: auto;
+}
+
+.navigationContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+
+.navButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.SVGarrow {
+    /* stroke: green !important; */
+    fill: black !important;
+    width: 5vw;
+    height: 5vh;
+}
+
+.link-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    font-size: 1.5vw;
+  }

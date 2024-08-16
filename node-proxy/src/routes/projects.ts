@@ -13,15 +13,19 @@ if (process.env.USE_JWT === 'true') {
 }
 const PROJECT_BASE_PATH = '/api/v1/projects'
 
-
-router.get('/', async (req: Request, res: Response) => {
+interface ProjectFilter {
+  categories:    string[]
+	tags :      string[]
+}
+router.post('/', async (req: Request, res: Response) => {
   const headers = {
     'userEmail': `${req.email}`
   }
   const page = req.query.page
   const size = req.query.size
   try {
-    const response: AxiosResponse<Project[]> = await axiosBase.get<Project[]>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, { headers });
+    const projectQuery: ProjectFilter = req.body
+    const response: AxiosResponse<Project[]> = await axiosBase.post<Project[]>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, projectQuery, { headers });
     const project: Project[] = response.data;
     res.status(200).json(project)
 
