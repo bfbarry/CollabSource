@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import './HomePage.css';
-import ProjectTile from './Components/ProjectTiles/ProjectTile';
-import CreateProjectTile from './Components/ProjectTiles/CreateProjectTile';
-import ScrollingTextBanner from '../ScrollingTextBanner/ScrollingTextBanner';
+import ScrollingTextBanner from './Components/ScrollingTextBanner';
 import SearchSection from './Components/SearchSection';
 import axiosBase from '../../config/axiosConfig'
 import { ProjectWId } from '../../types/project';
+import CreateProjectTile from '../Common/ProjectTiles/CreateProjectTile';
+import ProjectTile from '../Common/ProjectTiles/ProjectTile';
 
 
 const HomePage: React.FC = () => {

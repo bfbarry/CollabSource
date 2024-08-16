@@ -9,8 +9,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { AuthContext } from './context/AuthContext';
-import { useState } from 'react';
+import Explore from './Pages/Explore/Explore';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +19,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/explore",
-    element:<div>Explore!</div>,
+    element:<Explore/>,
     errorElement: <ErrorPage/>
   },
   {

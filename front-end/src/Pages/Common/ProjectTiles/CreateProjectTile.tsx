@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProjectTile.css';
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as PlusSVG } from "../../../../assets/svg/plus-large-svgrepo-com.svg"
+import { ReactComponent as PlusSVG } from "../../../assets/svg/plus-large-svgrepo-com.svg"
 
 const CreateProjectTile: React.FC = () => {
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProjectTile.css';
 import { useNavigate } from "react-router-dom";
-import { ProjectWId } from "../../../../types/project"
+import { ProjectWId } from '../../../types/project';
 
 const ProjectTile: React.FC<ProjectWId> = ({name, description, category, tags,_id, seeking}) => {
 
