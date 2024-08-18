@@ -22,6 +22,7 @@ interface OptionType {
 const Explore: React.FC = () => {
   const [pageNum, setPageNum] = useState(1)
   const [projects, setProjects] = useState<ProjectWId[]>([])
+  const [hasNext, setHasHext] = useState<Boolean>(false)
   const categories = ['business', 'software engineering', 'art'] // TODO get from backend?
   const categorySelectOptions: OptionType[] = categories.map(opt => ({
     value: opt,
@@ -35,17 +36,21 @@ const Explore: React.FC = () => {
 
   const detectCategoryChange = (selected: MultiValue<OptionType>) => {
     const selectedValues = selected.map(o => o.value)
-    let filterState = filters
-    filterState.categories = selectedValues
-    setFilters(filterState)
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      categories: selectedValues, 
+    }));
     setPageNum(1)
+    console.log("helloooo")
   }
 
   useEffect(() => {
-    console.log('hello popsting', filters)
     axiosBase.post(`/projects?page=${pageNum}&size=${NUMPERPAGE}`, filters)
     .then(res => {
-      setProjects(res.data.data)
+      setProjects(res.data.items)
+      setHasHext(res.data.hasNext)
+    console.log('hello posted', filters)
+
     })
     .catch(err => {
       console.log(err)
@@ -92,8 +97,13 @@ const Explore: React.FC = () => {
           }
         </div>
         <div onClick={()=>setPageNum(pageNum+1)} className='navButton' id='next-button'>
-          <button className="link-button"> next </button>
-          <RightSVG className="SVGarrow"/>
+          {
+            hasNext &&
+            <>
+              <button className="link-button"> next </button>
+              <RightSVG className="SVGarrow"/>
+            </>
+          }
         </div>
       </div>
     </>

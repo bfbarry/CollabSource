@@ -121,5 +121,23 @@ func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum
 	}
 
 	return nil
+}
 
+func (self *Repository) HasNextPage(coll string, pageNum int, pageSize int, filter bson.M) (bool, error) {
+	findOptions := options.Count()
+	skip := pageNum * pageSize //pageNum is greater than FindManyByPage's
+	findOptions.SetSkip(int64(skip))
+	nextPageCount, err := self.getCollection(coll).CountDocuments(
+		context.TODO(),
+		filter,
+		findOptions,
+	)
+	if err != nil {
+		return false, err
+	}
+	if nextPageCount > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }

@@ -15,6 +15,7 @@ func SendRequest(w http.ResponseWriter, status int, Body []byte) {
 }
 
 type PaginatedResponseBody[T any] struct {
-	Data []T `json:"data"`
+	Items []T `json:"items"`
 	Page int `json:"page"`
+	HasNext bool `json:"hasNext"`
 }

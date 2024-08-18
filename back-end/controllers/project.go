@@ -209,14 +209,20 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 
 	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
 	if mongoErr != nil {
-		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong here"))
-		fmt.Print(mongoErr)
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
 
+	hasNext, err := self.repository.HasNextPage(PROJECT_COLLECTION, pageNum, pageSize, filt)
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	
 	response := responseEntity.PaginatedResponseBody[model.Project]{
-		Data: projectEntity,
+		Items: projectEntity,
 		Page: pageNum,
+		HasNext: hasNext,
 	}
 
 	jsonResponse, jsonerr := json.Marshal(response)
