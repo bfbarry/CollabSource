@@ -43,3 +43,17 @@
       -webkit-transform: translateX(-100%);
       transform: translateX(-100%);
     }  }
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(45deg, #679DEB , #DDAFF5);
+  color: white;
+  height: 500px;
+  }
+
+.search-section h2 {
+  margin-bottom: 40px;
+}

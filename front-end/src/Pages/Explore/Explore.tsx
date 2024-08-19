@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, KeyboardEvent, useRef } from "react";
 import Select, { MultiValue } from 'react-select'
 import axiosBase from "../../config/axiosConfig";
 import { ProjectWId } from "../../types/project";
@@ -7,67 +7,85 @@ import './Explore.css'
 import { ReactComponent as RightSVG } from "../../assets/svg/right-next-navigation-svgrepo-com.svg"
 import { ReactComponent as LeftSVG } from "../../assets/svg/left-navigation-back-svgrepo-com.svg"
 import CreateProjectTile from "../Common/ProjectTiles/CreateProjectTile";
-
-
-interface Filters {
-  categories: String[],
-  searchQuery: String
-}
+import { Filters } from "../../types/project";
+import SearchBar from "../Common/SearchBar";
+import { useLocation } from "react-router-dom";
 
 interface OptionType {
   value: string;
   label: string;
 }
+export const NUMPERPAGE = 10
 
 const Explore: React.FC = () => {
+  
+  const location = useLocation()
+  let [redirected, setRedirected] = useState(location.state != null)
+  let locationProjects = null
+  let locationHasNext = null
+  let defaultSearchQuery = ''
+  if (redirected) {
+    locationProjects = location.state.projects
+    locationHasNext = location.state.hasNext
+    defaultSearchQuery = location.state.searchQuery
+    console.log(defaultSearchQuery)
+  }
   const [pageNum, setPageNum] = useState(1)
-  const [projects, setProjects] = useState<ProjectWId[]>([])
-  const [hasNext, setHasHext] = useState<Boolean>(false)
-  const categories = ['business', 'software engineering', 'art'] // TODO get from backend?
-  const categorySelectOptions: OptionType[] = categories.map(opt => ({
+  const [projects, setProjects] = useState<ProjectWId[]>(locationProjects || [])
+  const [hasNext, setHasHext] = useState<Boolean>(locationHasNext || false)
+  const categoryChoices = ['business', 'software engineering', 'art'] // TODO get from backend?
+  const categorySelectOptions: OptionType[] = categoryChoices.map(opt => ({
     value: opt,
     label: opt
   }))
-  const [filters, setFilters] = useState<Filters>({
-    categories: [],
-    searchQuery: ""
-  })
-  const NUMPERPAGE = 10
-
+  const [categories, setCategories] = useState<String[]>([])
+  // TODO get state from front page search
+  const [searchQuery, setSearchQuery] = useState<string>(defaultSearchQuery)
+  
   const detectCategoryChange = (selected: MultiValue<OptionType>) => {
     const selectedValues = selected.map(o => o.value)
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      categories: selectedValues, 
-    }));
+    setCategories(selectedValues);
     setPageNum(1)
   }
 
   useEffect(() => {
-    axiosBase.post(`/projects?page=${pageNum}&size=${NUMPERPAGE}`, filters)
-    .then(res => {
-      setProjects(res.data.items || [])
-      setHasHext(res.data.hasNext)
-    })
-    .catch(err => {
-      console.log(err)
-    })
-  }, [pageNum, filters])
+    if (!redirected) {
+      const filters: Filters = { categories, searchQuery }
+      axiosBase.post(`/projects?page=${pageNum}&size=${NUMPERPAGE}`, filters)
+      .then(res => {
+        setProjects(res.data.items || [])
+        setHasHext(res.data.hasNext)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }
+    setRedirected(false)
+  }, [pageNum, categories])
 
   return (
     <>
-      <div className='filter-parent'> 
-        <h2>Filters</h2>
-        <div className='filter-container'>
-          <Select<OptionType, true>
-            placeholder="category"
-            isMulti
-            onChange={detectCategoryChange}
-            options={categorySelectOptions}
-            closeMenuOnSelect={false}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            />
+      <div className='filter-parent'>
+        <SearchBar 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery}
+          categories={categories}
+          setProjects={setProjects}
+          setHasHext={setHasHext}
+          redirect={false}/>
+        <div className='filter-dropdowns'> 
+          <h2>Filters</h2>
+          <div className='filter-container'>
+            <Select<OptionType, true>
+              placeholder="category"
+              isMulti
+              onChange={detectCategoryChange}
+              options={categorySelectOptions}
+              closeMenuOnSelect={false}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              />
+          </div>
         </div>
       </div>
       <div className='projectContainer'>

@@ -1,5 +1,18 @@
 .filter-parent {
-    margin-left: 1vw;
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+    align-items: center;
+    padding: 4px;
+}
+
+h2 {
+    margin: 5px;
+    padding: 0;
+}
+
+.filter-dropdowns {
+    margin-left: 15px;
     margin-bottom: 0px;
     padding: 0px;
 }
@@ -10,7 +23,7 @@
 }
 
 .filter-container select {
-    padding: 1vh;
+    padding: 10px;
     border: none;
     border:solid 2px #3d3d3d;
     border-radius: 4px;
@@ -22,14 +35,15 @@
     flex-wrap: wrap;
     align-content: start;
     overflow: auto;
+    /* margin-left: 5px; */
 }
 
 .navigationContainer {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 1vw;
-    margin-bottom: 1vw;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .navButton {
@@ -41,9 +55,9 @@
 
 .SVGarrow {
     /* stroke: green !important; */
-    fill: black !important;
-    width: 5vw;
-    height: 5vh;
+    fill: rgb(0, 94, 255) !important;
+    width: 30px;
+    height: 30px;
 }
 
 .link-button {
@@ -54,5 +68,6 @@
     display: inline;
     margin: 0;
     padding: 0;
-    font-size: 1.5vw;
+    font-size: 25px;
+    color: rgb(0, 94, 255);
   }
