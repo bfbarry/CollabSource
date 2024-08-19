@@ -15,7 +15,7 @@ const PROJECT_BASE_PATH = '/api/v1/projects'
 
 interface ProjectFilter {
   categories:    string[]
-	tags :      string[]
+	searchQuery :      string
 }
 router.post('/', async (req: Request, res: Response) => {
   const headers = {

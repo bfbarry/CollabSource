@@ -11,7 +11,7 @@ import CreateProjectTile from "../Common/ProjectTiles/CreateProjectTile";
 
 interface Filters {
   categories: String[],
-  tags: String[]
+  searchQuery: String
 }
 
 interface OptionType {
@@ -30,7 +30,7 @@ const Explore: React.FC = () => {
   }))
   const [filters, setFilters] = useState<Filters>({
     categories: [],
-    tags: []
+    searchQuery: ""
   })
   const NUMPERPAGE = 10
 
@@ -41,16 +41,13 @@ const Explore: React.FC = () => {
       categories: selectedValues, 
     }));
     setPageNum(1)
-    console.log("helloooo")
   }
 
   useEffect(() => {
     axiosBase.post(`/projects?page=${pageNum}&size=${NUMPERPAGE}`, filters)
     .then(res => {
-      setProjects(res.data.items)
+      setProjects(res.data.items || [])
       setHasHext(res.data.hasNext)
-    console.log('hello posted', filters)
-
     })
     .catch(err => {
       console.log(err)
@@ -63,6 +60,7 @@ const Explore: React.FC = () => {
         <h2>Filters</h2>
         <div className='filter-container'>
           <Select<OptionType, true>
+            placeholder="category"
             isMulti
             onChange={detectCategoryChange}
             options={categorySelectOptions}
@@ -74,7 +72,7 @@ const Explore: React.FC = () => {
       </div>
       <div className='projectContainer'>
         <CreateProjectTile/>
-        {projects.map((value) => (
+        {projects.length > 0 ? projects.map((value) => (
           <ProjectTile 
           key={value._id}
           _id={value._id}
@@ -84,7 +82,8 @@ const Explore: React.FC = () => {
           tags={value.tags} 
           seeking={value.seeking}
           />
-      ))}
+      )) : 
+      <div> no projects found through those filters (yet) </div>}
       </div>
       <div className='navigationContainer'>
         <div onClick={()=>setPageNum(pageNum-1)} className='navButton' id='prev-button'>

@@ -176,6 +176,7 @@ func (self *ProjectController) DeleteProject(w http.ResponseWriter, id string, u
 }
 
 func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Request) {
+	// TODO use elasticsearch, add more fields to ProjectFilter
 	defaultPageNum := 1
 	defaultPageSize := 10
 	var pageNum int
@@ -200,16 +201,50 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	filt := bson.M{}
-	if len(projectFilter.Tags) != 0 {
-		filt["tags"] = bson.M{"$in": projectFilter.Tags}
-	}
-	if len(projectFilter.Categories) != 0 {
+
+	if len(projectFilter.Categories) > 0 {
 		filt["category"] = bson.M{"$in": projectFilter.Categories}
 	}
+	if len(projectFilter.SearchQuery) > 0 {
+		splitTerms := strings.Fields(projectFilter.SearchQuery)
+		tagConditions := make([]bson.M, len(splitTerms))
+		for i, term := range(splitTerms) {
+			tagConditions[i] = bson.M{
+				"tags": bson.M{
+					"$elemMatch": bson.M{
+						"$regex": term,
+						"$options": "i",
+					},
+				},
+			}
+		}
+		tagFilt := bson.M{"$or": tagConditions}
+		// tagFilt := bson.M{"tags": bson.M{"$in": splitTerms}}
+
+		search := bson.M{"$or": []bson.M{
+			{"description": bson.M{"$regex": projectFilter.SearchQuery,
+									"$options": "i"}},
+			{"name": bson.M{"$regex": projectFilter.SearchQuery,
+									"$options": "i"}},
+			tagFilt,
+			},
+		}
+
+		//join any previous filters into one filter 
+		if len(projectFilter.Categories) > 0 {
+			filt = bson.M{"$and": []bson.M{search, filt}}
+		} else {
+			filt = search
+		}
+	}
+
+	fmt.Println(filt)
 
 	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
 	if mongoErr != nil {
-		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		fmt.Println(mongoErr)
+
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong here"))
 		return
 	}
 
