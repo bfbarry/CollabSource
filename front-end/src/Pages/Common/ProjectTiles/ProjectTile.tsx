@@ -5,17 +5,26 @@ import { ProjectWId } from '../../../types/project';
 
 const ProjectTile: React.FC<ProjectWId> = ({name, description, category, tags,_id, seeking}) => {
 
-    let navigate = useNavigate();
+  let navigate = useNavigate();
 
-    return(
-        <div className="project-tile demo-project">
-            <button onClick={() => {navigate(`/project/${_id}`)}} className='project-tile-button'>
-                <h3>{name}</h3>
-                <p className="project-tile-description">{description}</p>
-                <p className="project-tile-description"><b>Seeking:</b> {seeking.join(', ')}</p>
-            </button>
+  return(
+    <div className="project-tile demo-project">
+      <button 
+      onClick={() => {navigate(`/project/${_id}`)}} 
+      className='project-tile-button'>
+        <h3>{name}</h3>
+        <div className='description-container'>
+          {description}
         </div>
-    );
+        <div className='tag-array'>
+          <b>Seeking:</b> {seeking.join(', ')}
+        </div>
+        <div className='tag-array'>
+          <b>Tags:</b> {tags.join(', ')}
+        </div>
+      </button>
+    </div>
+  );
 }
 
 export default ProjectTile;

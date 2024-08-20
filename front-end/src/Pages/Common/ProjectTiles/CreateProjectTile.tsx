@@ -9,7 +9,8 @@ const CreateProjectTile: React.FC = () => {
 
     return(
       <div className="project-tile create-project">
-        <button onClick={() => {navigate(`/create_project`)}} className='project-tile-button'>
+        <button onClick={() => {navigate(`/create_project`)}} 
+        className='project-tile-button'>
           <h3>Create a project</h3>
           <div className='plus-div'>
 

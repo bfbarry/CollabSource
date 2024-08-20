@@ -12,7 +12,7 @@ const HomePage: React.FC = () => {
   
   const [projects, setProjects] = useState<ProjectWId[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('')
-
+  const moreText = 'Explore more projects >'
   useEffect(() => {
     const filters: Filters = {categories:[], searchQuery:''}
     axiosBase.post('/projects?page=1&size=3', filters)
@@ -51,6 +51,9 @@ const HomePage: React.FC = () => {
           seeking={value.seeking}
           />
         ))}
+        </div>
+        <div>
+          <a className='more-projects-link' href='/explore'>{moreText}</a>
         </div>
       </div>
       <div id="scroll-container">

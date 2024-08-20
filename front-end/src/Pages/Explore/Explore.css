@@ -9,6 +9,7 @@
 h2 {
     margin: 5px;
     padding: 0;
+    color: #3d3d3d;
 }
 
 .filter-dropdowns {
@@ -35,6 +36,7 @@ h2 {
     flex-wrap: wrap;
     align-content: start;
     overflow: auto;
+    justify-content: center;
     /* margin-left: 5px; */
 }
 
@@ -44,6 +46,8 @@ h2 {
     justify-content: space-between;
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 .navButton {
@@ -71,3 +75,11 @@ h2 {
     font-size: 25px;
     color: rgb(0, 94, 255);
   }
+
+.no-projects {
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: rgb(133, 133, 133);
+}

@@ -15,7 +15,7 @@ interface OptionType {
   value: string;
   label: string;
 }
-export const NUMPERPAGE = 10
+export const NUMPERPAGE = 11
 
 const Explore: React.FC = () => {
   
@@ -88,9 +88,16 @@ const Explore: React.FC = () => {
           </div>
         </div>
       </div>
+      {projects.length === 0 &&
+        <div className='no-projects'> 
+          <div>
+          no projects found through those filters (yet) 
+          </div>
+        </div>
+      }
       <div className='projectContainer'>
         <CreateProjectTile/>
-        {projects.length > 0 ? projects.map((value) => (
+        {projects.length > 0 && projects.map((value) => (
           <ProjectTile 
           key={value._id}
           _id={value._id}
@@ -100,8 +107,7 @@ const Explore: React.FC = () => {
           tags={value.tags} 
           seeking={value.seeking}
           />
-      )) : 
-      <div> no projects found through those filters (yet) </div>}
+      ))}
       </div>
       <div className='navigationContainer'>
         <div onClick={()=>setPageNum(pageNum-1)} className='navButton' id='prev-button'>

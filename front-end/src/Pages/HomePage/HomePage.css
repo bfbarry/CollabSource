@@ -1,7 +1,7 @@
 #explore-projects-section {
     display: flex;
     flex-direction: column;
-    padding: 50px;
+    padding: 15px;
 }
 
 #project-tiles-section {
@@ -56,4 +56,14 @@
 
 .search-section h2 {
   margin-bottom: 40px;
+}
+
+.more-projects {
+  /* display: flex; */
+}
+
+.more-projects-link {
+  float: right;
+  font-size: 20px;
+  margin: 10px;
 }
