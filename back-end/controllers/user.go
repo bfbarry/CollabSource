@@ -158,13 +158,12 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 
 	var userEntities []model.PublicUser
 
-	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
+	hasNext, mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
 
-	hasNext, err := self.repository.HasNextPage(USER_COLLECTION, pageNum, pageSize, filter)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
@@ -209,14 +208,13 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	var userEntities []model.PublicUser
 	filter := bson.M{}
 
-	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
+	hasNext, mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
 		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
 	
-	hasNext, err := self.repository.HasNextPage(USER_COLLECTION, pageNum, pageSize, filter)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return

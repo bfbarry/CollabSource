@@ -238,17 +238,12 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	fmt.Println(filt)
-
-	mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
+	hasNext, mongoErr := self.repository.FindManyByPage(PROJECT_COLLECTION, &projectEntity, pageNum, pageSize, filt)
 	if mongoErr != nil {
-		fmt.Println(mongoErr)
-
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong here"))
 		return
 	}
 
-	hasNext, err := self.repository.HasNextPage(PROJECT_COLLECTION, pageNum, pageSize, filt)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return

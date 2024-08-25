@@ -1,7 +1,18 @@
+.explore-parent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.explore-wrapper {
+    /* background-color: aquamarine; */
+    width: 95%;
+    /* padding: 20px; */
+}
 .filter-parent {
     display: flex;
     flex-direction: row;
-    margin-left: 10px;
+    margin-left: 8px;
     align-items: center;
     padding: 4px;
 }
@@ -36,8 +47,9 @@ h2 {
     flex-wrap: wrap;
     align-content: start;
     overflow: auto;
-    justify-content: center;
-    /* margin-left: 5px; */
+    /* margin-left: 10px; */
+    padding: 8px;
+    width: 100%;
 }
 
 .navigationContainer {
@@ -46,8 +58,8 @@ h2 {
     justify-content: space-between;
     margin-top: 10px;
     margin-bottom: 10px;
-    margin-left: 50px;
-    margin-right: 50px;
+    margin-left: 25px;
+    margin-right: 25px;
 }
 
 .navButton {
@@ -58,8 +70,13 @@ h2 {
 }
 
 .SVGarrow {
-    /* stroke: green !important; */
-    fill: rgb(0, 94, 255) !important;
+    stroke: rgb(73, 73, 129);
+    width: 30px;
+    height: 30px;
+    stroke-width: 3;
+}
+
+.arrow-placeholder {
     width: 30px;
     height: 30px;
 }
@@ -82,4 +99,9 @@ h2 {
     flex-direction: row;
     justify-content: center;
     color: rgb(133, 133, 133);
+}
+
+.page-num {
+    user-select: none; 
+    color: #525252
 }

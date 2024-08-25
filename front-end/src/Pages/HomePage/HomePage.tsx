@@ -12,6 +12,7 @@ const HomePage: React.FC = () => {
   
   const [projects, setProjects] = useState<ProjectWId[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('')
+
   const moreText = 'Explore more projects >'
   useEffect(() => {
     const filters: Filters = {categories:[], searchQuery:''}
@@ -30,11 +31,10 @@ const HomePage: React.FC = () => {
       <div className="search-section">
         <h2>Find collaborators for your passion projects.</h2>
         <SearchBar 
-          searchQuery={searchQuery} 
+          searchParams={new URLSearchParams()} 
+          setSearchParams={()=>{}}
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          categories={[]}
-          setProjects={()=>{}}
-          setHasHext={()=>{}}
           redirect={true}/>
       </div>
       <div id="explore-projects-section">

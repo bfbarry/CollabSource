@@ -5,8 +5,9 @@
     color: white;
     padding: 10px;
     margin: 5px;
-    width: 28vw;
+    width: 29.25vw;
     transition: all 0.1s;
+    position:static;
 }
 
 .project-tile:hover {
