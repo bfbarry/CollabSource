@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/bfbarry/CollabSource/back-end/model"
 	"github.com/bfbarry/CollabSource/back-end/mongoClient"
@@ -104,22 +105,44 @@ func (self *Repository) Delete(coll string, id primitive.ObjectID) (int64, error
 	return result.DeletedCount, nil
 }
 
-func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int, filter bson.M) error {
+func (self *Repository) FindManyByPage(coll string, results interface{}, pageNum int, pageSize int, filter bson.M) (bool, error) {
 
 	findOptions := options.Find()
 	skip := (pageNum - 1) * pageSize
-	findOptions.SetLimit(int64(pageSize))
+	findOptions.SetLimit(int64(pageSize+1))
 	findOptions.SetSkip(int64(skip))
 	cursor, findErr := self.getCollection(coll).Find(context.TODO(), filter, findOptions)
 	if findErr != nil {
-		return findErr
+		return false, findErr
 	}
 
-	if err := cursor.All(context.TODO(), results); err != nil {
-		fmt.Printf(err.Error())
-		return err
+    // Get the reflect Value of results (which should be a pointer to a slice)
+    sliceValue := reflect.ValueOf(results)
+    if sliceValue.Kind() != reflect.Ptr || sliceValue.Elem().Kind() != reflect.Slice {
+        return false, fmt.Errorf("results argument must be a pointer to a slice")
+    }
+
+    sliceElemType := sliceValue.Elem().Type().Elem()
+	count := 0
+    for cursor.Next(context.TODO()) {
+		count++
+		if count <= pageSize {
+			result := reflect.New(sliceElemType).Elem()
+	
+			if err := cursor.Decode(result.Addr().Interface()); err != nil {
+				fmt.Printf(err.Error())
+				return false, err
+			}
+	
+			sliceValue.Elem().Set(reflect.Append(sliceValue.Elem(), result))
+		}
+    }
+
+	var hasNext bool
+	if count == pageSize+1 {
+		hasNext = true
+	} else {
+		hasNext = false
 	}
-
-	return nil
-
+	return hasNext, nil
 }

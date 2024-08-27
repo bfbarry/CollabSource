@@ -21,3 +21,10 @@ export interface Project {
     tags : string[]
     seeking: string[]
   }
+
+
+export interface PaginatedResponseBody<T> {
+	items: T[]
+	page: number
+	hasNext: boolean
+}

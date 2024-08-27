@@ -2,7 +2,7 @@ import express, {Request, Response} from 'express';
 import authenticateJWT from '../middlewear/authentication';
 import { AxiosResponse } from 'axios';
 import { axiosBase } from '../config';
-import { Project } from '../types/types';
+import { Project, PaginatedResponseBody } from '../types/types';
 import cors from 'cors';
 
 const router = express.Router();
@@ -13,16 +13,21 @@ if (process.env.USE_JWT === 'true') {
 }
 const PROJECT_BASE_PATH = '/api/v1/projects'
 
-
-router.get('/', async (req: Request, res: Response) => {
+interface ProjectFilter {
+  categories:    string[]
+	searchQuery :  string
+}
+router.post('/', async (req: Request, res: Response) => {
   const headers = {
     'userEmail': `${req.email}`
   }
   const page = req.query.page
   const size = req.query.size
   try {
-    const response: AxiosResponse<Project[]> = await axiosBase.get<Project[]>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, { headers });
-    const project: Project[] = response.data;
+    const projectQuery: ProjectFilter = req.body
+    console.log(req.body)
+    const response: AxiosResponse<PaginatedResponseBody<Project>> = await axiosBase.post<PaginatedResponseBody<Project>>(`${PROJECT_BASE_PATH}?page=${page}&size=${size}`, projectQuery, { headers });
+    const project: PaginatedResponseBody<Project> = response.data;
     res.status(200).json(project)
 
   } catch (error) {

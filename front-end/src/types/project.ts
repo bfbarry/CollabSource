@@ -9,3 +9,8 @@ export interface ProjectBase {
 export interface ProjectWId extends ProjectBase {
   _id: string;
 }
+
+export interface Filters {
+  categories: String[],
+  searchQuery: String
+}

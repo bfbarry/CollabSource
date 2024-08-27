@@ -158,15 +158,21 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 
 	var userEntities []model.PublicUser
 
-	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
+	hasNext, mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
-		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
+
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
 	res := responseEntity.PaginatedResponseBody[model.PublicUser]{
-		Data: userEntities,
+		Items: userEntities,
 		Page: pageNum,
+		HasNext: hasNext,
 	}
 
 	jsonRes, jsonErr := json.Marshal(res)
@@ -179,6 +185,9 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 }
 
 func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
+
+	// Why do we have this?  Should just need GetUsersByQuery
+
 	defaultPageNum := 1
 	defaultPageSize := 10
 	var err error
@@ -199,15 +208,22 @@ func (self *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	var userEntities []model.PublicUser
 	filter := bson.M{}
 
-	mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
+	hasNext, mongoErr := self.repository.FindManyByPage(USER_COLLECTION, &userEntities, pageNum, pageSize, filter)
 	if mongoErr != nil {
 		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
+	
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
 	res := responseEntity.PaginatedResponseBody[model.PublicUser]{
-		Data: userEntities,
+		Items: userEntities,
 		Page: pageNum,
+		HasNext: hasNext,
 	}
 
 	jsonRes, jsonErr := json.Marshal(res)

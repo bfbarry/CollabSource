@@ -1,0 +1,107 @@
+.explore-parent {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.explore-wrapper {
+    /* background-color: aquamarine; */
+    width: 95%;
+    /* padding: 20px; */
+}
+.filter-parent {
+    display: flex;
+    flex-direction: row;
+    margin-left: 8px;
+    align-items: center;
+    padding: 4px;
+}
+
+h2 {
+    margin: 5px;
+    padding: 0;
+    color: #3d3d3d;
+}
+
+.filter-dropdowns {
+    margin-left: 15px;
+    margin-bottom: 0px;
+    padding: 0px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.filter-container select {
+    padding: 10px;
+    border: none;
+    border:solid 2px #3d3d3d;
+    border-radius: 4px;
+}
+
+.projectContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: start;
+    overflow: auto;
+    /* margin-left: 10px; */
+    padding: 8px;
+    width: 100%;
+}
+
+.navigationContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.navButton {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.SVGarrow {
+    stroke: rgb(73, 73, 129);
+    width: 30px;
+    height: 30px;
+    stroke-width: 3;
+}
+
+.arrow-placeholder {
+    width: 30px;
+    height: 30px;
+}
+
+.link-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    font-size: 25px;
+    color: rgb(0, 94, 255);
+  }
+
+.no-projects {
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: rgb(133, 133, 133);
+}
+
+.page-num {
+    user-select: none; 
+    color: #525252
+}

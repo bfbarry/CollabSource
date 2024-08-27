@@ -18,4 +18,3 @@ func (self *Repository) DocumentExists(coll string, id primitive.ObjectID) (bool
 	} 
 	return false, nil
 }
-

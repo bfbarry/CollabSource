@@ -1,0 +1,69 @@
+.project-tile {
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    color: white;
+    padding: 10px;
+    margin: 5px;
+    width: 29.25vw;
+    transition: all 0.1s;
+    position:static;
+}
+
+.project-tile:hover {
+    transform: scale(1.05);
+    transition: all 0.1s;
+}
+
+.project-tile h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.demo-project {
+    background-image: linear-gradient(45deg, #3E3E79 , #7878E8);
+}
+
+.create-project {
+    background-image: linear-gradient(45deg, #e913d4 , #7878E8);
+}
+
+.project-tile-button {
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+    /* display: flex;
+    flex-direction: column; */
+}
+
+.plus-sign {
+    stroke: white !important;
+    width: 70px;
+    height: 70px;
+}
+
+.plus-div {
+    fill: white;
+}
+
+.description-container{
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.tag-array {
+    text-overflow: ellipsis;
+    overflow: hidden; 
+    width: 100%; 
+    float: left;
+    white-space: nowrap;
+}
