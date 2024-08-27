@@ -1,4 +1,4 @@
-import React, { useEffect, useState, KeyboardEvent, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Select, { MultiValue } from 'react-select'
 import axiosBase from "../../config/axiosConfig";
 import { ProjectWId } from "../../types/project";
@@ -9,7 +9,7 @@ import { ReactComponent as LeftSVG } from "../../assets/svg/left-navigation-back
 import CreateProjectTile from "../Common/ProjectTiles/CreateProjectTile";
 import { Filters } from "../../types/project";
 import SearchBar from "../Common/SearchBar";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 interface OptionType {
   value: string;
@@ -51,6 +51,7 @@ const Explore: React.FC = () => {
   }
 
   useEffect(() => {
+    console.log('hi')
     const page = Number(searchParams.get(PAGE_SEARCH_KEY)) || 1
     setPageNum(page)
     let categtmp = searchParams.get(CATEGORY_SEARCH_KEY)

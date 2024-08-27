@@ -1,4 +1,4 @@
-import { Dispatch, FC, KeyboardEvent, SetStateAction, useState } from "react";
+import { Dispatch, FC, KeyboardEvent, SetStateAction } from "react";
 import './SearchBar.css'
 import { PAGE_SEARCH_KEY, SEARCH_SEARCH_KEY } from "../Explore/Explore";
 import { SetURLSearchParams, useNavigate } from "react-router-dom";
