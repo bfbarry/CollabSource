@@ -37,6 +37,8 @@ func (self *UserRouter) initiateUserRoutes() {
 func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	UUID := r.Header.Get("UUID")
+	fmt.Println("ehll0")
+	fmt.Print(UUID)
 	switch r.Method {
 	case http.MethodGet:
 		fmt.Println("GET /user")

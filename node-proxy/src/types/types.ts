@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export interface UserRegisterRequestBody {
     name: string;
     password: string;
@@ -28,3 +30,7 @@ export interface PaginatedResponseBody<T> {
 	page: number
 	hasNext: boolean
 }
+
+export interface IRequest extends Request {
+    id: string
+  }

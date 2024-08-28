@@ -95,10 +95,18 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, userUUID string, 
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
+	var userEntity interface{}
+	var reflector interface{}
+	if userUUID == id {
+		userEntity = &model.User{}
+		reflector = &model.User{}
+	} else {
+		userEntity = &model.PublicUser{}
+		reflector = &model.PublicUser{}
+	}
 
-	userEntity := &model.User{}
 	mongoErr := self.repository.FindByID(USER_COLLECTION, ObjId, userEntity)
-	if reflect.DeepEqual(*userEntity, model.User{}) {
+	if reflect.DeepEqual(userEntity, reflector) {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
 		return
 	}
@@ -106,10 +114,6 @@ func (self *UserController) GetUserByID(w http.ResponseWriter, userUUID string, 
 		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
-	}
-	if userEntity.Email != userUUID {
-		userEntity.Email = ""
-		userEntity.Password = ""
 	}
 
 	jsonRes, jsonerr := json.Marshal(userEntity)

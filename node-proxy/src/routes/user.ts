@@ -3,14 +3,13 @@ import authenticateJWT from '../middlewear/authentication'
 import { AxiosResponse } from 'axios';
 import { axiosBase } from '../config'
 import { UserPatchRequestBody } from '../types/types';
+import { IRequest } from '../types/types';
 import cors from 'cors';
 
 const router = express.Router()
 router.use(cors());
 
-if (process.env.USE_JWT === 'true') {
-    router.use(authenticateJWT)
-}
+router.use(authenticateJWT)
 
 const USER_BASE_PATH = '/api/v1/user'
 
@@ -24,21 +23,28 @@ interface User {
     skills: string[];
 } 
 
-router.get('/:id', async (req: Request, res: Response) => {
+interface PublicUser {
+    _id: string;
+    name: string;
+    description: string;
+    skills: string[];
+} 
+
+router.get('/:id', async (req: IRequest, res: Response) => {
 
     const userId = req.params.id;
     const headers = {
-        'UUID':`${req.email}`
+        'UUID':`${req.id}`
     }
-    
-    let response: AxiosResponse<User>
+    console.log(headers)
+    let response: AxiosResponse<User | PublicUser>
     try {
-        response = await axiosBase.get<User>(`${USER_BASE_PATH}/${userId}`, { headers });
+        response = await axiosBase.get<User | PublicUser>(`${USER_BASE_PATH}/${userId}`, { headers });
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return
     }
-    const user: User = response.data;
+    const user: User | PublicUser = response.data;
 
     res.status(response.status).json({ data: user });
 });
@@ -68,11 +74,11 @@ router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequest
     res.status(response.status).json({ data: user });
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: IRequest, res: Response) => {
 
     const userId = req.params.id;
     const headers = {
-        'UUID':`${req.email}`
+        'UUID':`${req.id}`
     }
     
     let response: AxiosResponse<string> 
