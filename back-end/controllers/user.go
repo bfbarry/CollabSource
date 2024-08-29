@@ -340,6 +340,7 @@ func (self *UserController) GetUserProjects(w http.ResponseWriter, r *http.Reque
 	var pageSize int
 
 	queryParams := r.URL.Query()
+	fmt.Println(queryParams)
 	defaultPageNum := 1
 	defaultPageSize := 10
 	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
@@ -350,7 +351,6 @@ func (self *UserController) GetUserProjects(w http.ResponseWriter, r *http.Reque
 		pageSize = defaultPageSize
 	}
 
-	
 	var entities []model.Project
 	hasNext, mongoErr := self.repository.FindManyByJunction(USER_PROJECT_COLLECTION, "user_id", ObjId, 
 															"project_id", "projects", pageNum, pageSize, &entities)

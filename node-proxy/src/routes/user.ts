@@ -53,9 +53,11 @@ router.get('/projects/:id', async (req: IRequest, res: Response) => {
     const headers = {
         'UUID':`${req.id}`
     }
+    const page = req.query.page
+    const size = req.query.size
     let response: AxiosResponse<Project[]>
     try {
-        response = await axiosBase.get<Project[]>(`/api/v1/user_to_project/${userId}`, { headers });
+        response = await axiosBase.get<Project[]>(`/api/v1/user_to_project/${userId}?page=${page}&size=${size}`, { headers });
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return

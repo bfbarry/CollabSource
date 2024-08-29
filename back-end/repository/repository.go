@@ -162,7 +162,7 @@ func (self *Repository) FindManyByJunction(coll string, fromKey string, fromKeyV
 		{{"$unwind", newRoot}},
 		{{"$replaceRoot", bson.D{{"newRoot", newRoot}}}},
 		{{"$skip", skip}},                    
-		{{"$limit", pageSize}},                
+		{{"$limit", pageSize+1}},                
 	}
 
 	cursor, err := self.getCollection(coll).Aggregate(context.TODO(), pipeline)

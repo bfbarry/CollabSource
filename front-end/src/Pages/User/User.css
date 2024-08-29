@@ -36,7 +36,7 @@ h1 {
 }
 
 .profileBody {
-    margin: 10px;
+    margin: 7px;
     background-color: white;
     border-radius: 8px;
     padding: 10px;
@@ -46,4 +46,16 @@ h2 {
     margin: 0;
     margin-top: 15px
 
+}
+
+#explore-projects-section {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+
+#project-tiles-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
