@@ -3,7 +3,7 @@ import authenticateJWT from '../middlewear/authentication'
 import { AxiosResponse } from 'axios';
 import { axiosBase } from '../config'
 import { UserPatchRequestBody } from '../types/types';
-import { IRequest } from '../types/types';
+import { Project, IRequest } from '../types/types';
 import cors from 'cors';
 
 const router = express.Router()
@@ -36,7 +36,6 @@ router.get('/:id', async (req: IRequest, res: Response) => {
     const headers = {
         'UUID':`${req.id}`
     }
-    console.log(headers)
     let response: AxiosResponse<User | PublicUser>
     try {
         response = await axiosBase.get<User | PublicUser>(`${USER_BASE_PATH}/${userId}`, { headers });
@@ -49,10 +48,22 @@ router.get('/:id', async (req: IRequest, res: Response) => {
     res.status(response.status).json({ data: user });
 });
 
-// axios.interceptors.request.use(request => {
-//     console.log('Starting Request', request);
-//     return request;
-//   });
+router.get('/projects/:id', async (req: IRequest, res: Response) => {
+    const userId = req.params.id;
+    const headers = {
+        'UUID':`${req.id}`
+    }
+    let response: AxiosResponse<Project[]>
+    try {
+        response = await axiosBase.get<Project[]>(`/api/v1/user_to_project/${userId}`, { headers });
+    } catch(error) {
+        res.status(error.response.status).json({data: error.response.data})
+        return
+    }
+    const projects: Project[] = response.data;
+
+    res.status(response.status).json(projects);
+});
 
 router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequestBody>, res: Response) => {
     const updatedUserBody: UserPatchRequestBody = req.body;

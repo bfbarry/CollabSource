@@ -157,7 +157,7 @@ func (self *UserController) GetUsersByQuery(w http.ResponseWriter, r *http.Reque
 	}
 
 	if pageSize, err = strconv.Atoi(queryParams.Get("size")); err != nil {
-		pageNum = defaultPageSize
+		pageSize = defaultPageSize
 	}
 
 	var userEntities []model.PublicUser
@@ -246,10 +246,10 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, userUUID string, i
 		return
 	}
 	
-	userCheck := &model.UserCheck{}
+	userCheck := &model.IdObj{}
 	var mongoErr error
 	mongoErr = self.repository.FindByID(USER_COLLECTION, ObjId, userCheck)
-	if reflect.DeepEqual(*userCheck, model.UserCheck{}) {
+	if reflect.DeepEqual(*userCheck, model.IdObj{}) {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
 		return
 	}
@@ -297,10 +297,10 @@ func (self *UserController) DeleteUser(w http.ResponseWriter, userUUID string, i
 		return
 	}
 
-	userCheck := &model.UserCheck{}
+	userCheck := &model.IdObj{}
 	var mongoErr error
 	mongoErr = self.repository.FindByID(USER_COLLECTION, ObjId, userCheck)
-	if reflect.DeepEqual(*userCheck, model.UserCheck{}) {
+	if reflect.DeepEqual(*userCheck, model.IdObj{}) {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
 		return
 	}
@@ -328,4 +328,49 @@ func (self *UserController) DeleteUser(w http.ResponseWriter, userUUID string, i
 	}
 
 	responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
+}
+
+func (self *UserController) GetUserProjects(w http.ResponseWriter, r *http.Request, id string) {
+	ObjId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+	var pageNum int
+	var pageSize int
+
+	queryParams := r.URL.Query()
+	defaultPageNum := 1
+	defaultPageSize := 10
+	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
+		pageNum = defaultPageNum
+	}
+
+	if pageSize, err = strconv.Atoi(queryParams.Get("size")); err != nil {
+		pageSize = defaultPageSize
+	}
+
+	
+	var entities []model.Project
+	hasNext, mongoErr := self.repository.FindManyByJunction(USER_PROJECT_COLLECTION, "user_id", ObjId, 
+															"project_id", "projects", pageNum, pageSize, &entities)
+	if mongoErr != nil {
+		fmt.Println(mongoErr)
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	res := responseEntity.PaginatedResponseBody[model.Project]{
+		Items: entities,
+		Page: pageNum,
+		HasNext: hasNext,
+	}
+
+	jsonRes, jsonErr := json.Marshal(res)
+	if jsonErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+
+	responseEntity.SendRequest(w, http.StatusOK, jsonRes)
 }

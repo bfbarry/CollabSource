@@ -31,14 +31,13 @@ func (self *UserRouter) initiateUserRoutes() {
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/users", BASE_URL), Handler: self.users})
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/login", BASE_URL), Handler: self.login})
 	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/register", BASE_URL), Handler: self.register})
+	endpoints = append(endpoints, Route{Path: fmt.Sprintf("%s/user_to_project/{id}", BASE_URL), Handler: self.userToProject})
 	self.routes = endpoints
 }
 
 func (self *UserRouter) user(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	UUID := r.Header.Get("UUID")
-	fmt.Println("ehll0")
-	fmt.Print(UUID)
 	switch r.Method {
 	case http.MethodGet:
 		fmt.Println("GET /user")
@@ -70,6 +69,17 @@ func (self *UserRouter) users(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (self *UserRouter) userToProject(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	switch r.Method {
+	case http.MethodGet:
+		fmt.Println("POST /user_to_project")
+		self.controller.GetUserProjects(w, r, id)
+	default:
+		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))
+	}
+}
+
 func (self *UserRouter) login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
@@ -89,3 +99,4 @@ func (self *UserRouter) register(w http.ResponseWriter, r *http.Request) {
 		responseEntity.SendRequest(w, http.StatusMethodNotAllowed, []byte("Method not allowed"))
 	}
 }
+

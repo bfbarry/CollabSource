@@ -1,0 +1,49 @@
+.name-header {
+    display: flex;
+    flex-direction: row;
+    background-image: linear-gradient(45deg, #679DEB , #DDAFF5);
+    border-radius: 12px;
+    margin: 25px;
+    height: 150px;
+    align-items: center;
+}
+
+.prof-pic {
+    height: 100px;
+    width: 100px;
+    margin: 0;
+}
+
+.svg-cont { /*only way to make margin work*/
+    margin-left: 25px;
+}
+
+h1 {
+    color: #FFFFFF;
+    margin-left: 10px;
+    font-size: 50px;
+}
+
+.profileBorder {
+    margin-left: 25px;
+    margin-right: 25px;
+    /* padding: 5px; */
+    background-image: linear-gradient(45deg, #679DEB , #DDAFF5);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profileBody {
+    margin: 10px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+h2 {
+    margin: 0;
+    margin-top: 15px
+
+}

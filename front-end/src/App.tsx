@@ -42,7 +42,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/user/:id",
-    element: <CreateProject/>,
+    element: <User/>,
     errorElement: <ErrorPage/>
   }
 ]);
