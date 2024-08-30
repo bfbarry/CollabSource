@@ -1,12 +1,12 @@
 #logInButton{
-    font-family: 'Poppins';
-    font-style: normal;
     font-weight: 700;
     font-size: 22px;
     line-height: 33px;
     color: #4646D7;
     background-color: white;
-    border: none;
+    border: 2px solid blue;
+    border-radius: 10px;
+    margin-right: 20px;
 }
 
 #logInButton:hover{
@@ -14,14 +14,13 @@
 }
 
 #sign-up-button {
-    font-family: 'Poppins';
     font-style: normal;
     font-weight: 700;
     font-size: 22px;
     line-height: 33px;
     color: white;
     background-color: #4646D7;
-    border: none;
+    border: 2px solid blue;
     border-radius: 10px;
 }
 

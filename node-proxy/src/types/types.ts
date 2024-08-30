@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { ParsedQs } from 'qs'
 
 export interface UserRegisterRequestBody {
     name: string;
@@ -31,6 +32,6 @@ export interface PaginatedResponseBody<T> {
 	hasNext: boolean
 }
 
-export interface IRequest extends Request {
-    id: string
-  }
+export interface IRequest<P = { id: string }, ResBody = unknown, ReqBody = unknown, ReqQuery extends ParsedQs = ParsedQs> extends Request<P, ResBody, ReqBody, ReqQuery> {
+  id: string;
+}

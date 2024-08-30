@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import axiosBase from "../../config/axiosConfig";
 import { AxiosHeaders } from 'axios';
 import {  UserType  } from "../../types/user";
-import {  Filters, ProjectWId  } from "../../types/project";
+import {  ProjectWId  } from "../../types/project";
 import './User.css'
 import { ReactComponent as ProfileSVG } from "../../assets/svg/user-profile-filled-svgrepo-com.svg"
 import { ReactComponent as RightSVG } from "../../assets/svg/right-next-navigation-svgrepo-com.svg"
@@ -23,18 +23,21 @@ const User:FC = () => {
   const [hasNext, setHasHext] = useState<Boolean>(false)
   
   useEffect(() => {
-    let headers = new AxiosHeaders()
-    if (loggedIn) {
-      headers.Authorization = token
-    } else {
-      headers.Authorization = "public"
+    const fetch = async () => {
+      try {
+        const headers = new AxiosHeaders()
+        headers.Authorization = loggedIn ? token : "public"
+        console.log(headers)
+  
+        const res = await axiosBase.get(`/user/${id}`, { headers })
+        setUser(res.data.data)
+        console.log(res.data.data) 
+      } catch (err) {
+        console.log(err) 
+      }
     }
-    axiosBase.get(`/user/${id}`, { headers })
-    .then(res => {setUser(res.data.data)})
-    .catch(err => {console.log(err)}) // TODO set UI error
-    
-    return
-  }, [id, loggedIn])
+    fetch()
+  }, [id, loggedIn, token])
   
   useEffect(() => {
     axiosBase.get(`/user/projects/${id}?page=${pageNum}&size=4`)
@@ -58,8 +61,8 @@ const User:FC = () => {
       </div>
       <div className="profileBorder">
         <div className="profileBody">
-          {
-            loggedIn && userID === id ?
+          { /* complicated check to make sure User and not Public user is loaded...*/
+            loggedIn && user && 'email' in user && userID === id ?
             <PrivateProfile user={user}/> :
             <PublicProfile user={user}/>
 

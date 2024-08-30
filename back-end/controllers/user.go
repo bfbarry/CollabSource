@@ -53,6 +53,7 @@ func (self *UserController) Register(w http.ResponseWriter, r *http.Request) {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("email exists"))
 		return
 	}
+
 	id, err := self.repository.Insert(USER_COLLECTION, userEntity)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
@@ -258,7 +259,8 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, userUUID string, i
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	if userCheck.Id.String() != userUUID {
+
+	if userCheck.Id.Hex() != userUUID {
 		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
 		return
 	}
@@ -340,7 +342,6 @@ func (self *UserController) GetUserProjects(w http.ResponseWriter, r *http.Reque
 	var pageSize int
 
 	queryParams := r.URL.Query()
-	fmt.Println(queryParams)
 	defaultPageNum := 1
 	defaultPageSize := 10
 	if pageNum, err = strconv.Atoi(queryParams.Get("page")); err != nil {
@@ -355,7 +356,6 @@ func (self *UserController) GetUserProjects(w http.ResponseWriter, r *http.Reque
 	hasNext, mongoErr := self.repository.FindManyByJunction(USER_PROJECT_COLLECTION, "user_id", ObjId, 
 															"project_id", "projects", pageNum, pageSize, &entities)
 	if mongoErr != nil {
-		fmt.Println(mongoErr)
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}

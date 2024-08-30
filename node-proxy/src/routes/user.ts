@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import authenticateJWT from '../middlewear/authentication'
 import { AxiosResponse } from 'axios';
 import { axiosBase } from '../config'
@@ -31,7 +31,6 @@ interface PublicUser {
 } 
 
 router.get('/:id', async (req: IRequest, res: Response) => {
-
     const userId = req.params.id;
     const headers = {
         'UUID':`${req.id}`
@@ -67,15 +66,16 @@ router.get('/projects/:id', async (req: IRequest, res: Response) => {
     res.status(response.status).json(projects);
 });
 
-router.patch('/:id', async (req:  Request<{id: string}, object, UserPatchRequestBody>, res: Response) => {
+router.patch('/:id', async (req:  IRequest<{ id: string }, object, UserPatchRequestBody>, res: Response) => {
+    console.log("yuooo")
     const updatedUserBody: UserPatchRequestBody = req.body;
     const userId = req.params.id;
     const headers = {
-        'UUID':`${req.email}`
+        'UUID': `${req.id}`
     }
     
     let response: AxiosResponse<User>
-
+    
     try{
         response = await axiosBase.patch<User>(`${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
     } catch(error) {
