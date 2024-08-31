@@ -272,7 +272,7 @@ func (self *UserController) UpdateUser(w http.ResponseWriter, userUUID string, i
 	}
 
 	// TODO other controller for LoginFields
-	if userEntity.Email != "" || userEntity.Password != "" {
+	if userEntity.Password != "" {
 		fmt.Println("cannot change password in UpdateUser")
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid Json"))
 		return

@@ -75,9 +75,9 @@ router.patch('/:id', async (req:  IRequest<{ id: string }, object, UserPatchRequ
     }
     
     let response: AxiosResponse<User>
-    
+    console.log(updatedUserBody)
     try{
-        response = await axiosBase.patch<User>(`${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
+        response = await axiosBase.patch(`${USER_BASE_PATH}/${userId}`, updatedUserBody, {headers});
     } catch(error) {
         res.status(error.response.status).json({data: error.response.data})
         return

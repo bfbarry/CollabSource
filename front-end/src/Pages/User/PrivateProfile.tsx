@@ -1,8 +1,9 @@
-import { ChangeEvent, FC, useState } from "react";
-import { User, UserType } from "../../types/user";
+import { ChangeEvent, FC, useContext, useState } from "react";
+import { User } from "../../types/user";
 import axiosBase from "../../config/axiosConfig";
-import { AxiosResponse } from "axios";
+import { AxiosHeaders, AxiosResponse } from "axios";
 import './User.css'
+import { AuthContext } from "../../context/AuthContext";
 
 interface UserSettingsForm {
   name        : string
@@ -19,9 +20,10 @@ interface PostData  {
 }
 
 interface Props {
-  user: UserType
+  user: User
 }
 const PrivateProfile:FC<Props> = ({ user }) => {
+  const { token } = useContext(AuthContext)
   const [formData, setFormData] = useState<UserSettingsForm>({
     name       : user?.name || '',
     email: (user as User)?.email || '',
@@ -49,15 +51,18 @@ const PrivateProfile:FC<Props> = ({ user }) => {
       description: formData.description,
       skills: tagArr,
     }
+    const headers = new AxiosHeaders()
+    headers.Authorization = token
+    console.log(postData)
     try {
-      const response: AxiosResponse<string> = await axiosBase.post<string>(`/project`, postData);
-      const id = response.data;
+      const response: AxiosResponse<string> = await axiosBase.patch<string>(`/user/${user._id}`, postData, {headers});
     } catch (err) {
       // setSubmitError("An error occurred")
-      console.log(postData)
-      console.log("hello error")
+      // console.log(postData)
+      console.log(err)
     }
   }
+
   return (
   <div>
     <h2> Profile Settings </h2>
@@ -79,7 +84,7 @@ const PrivateProfile:FC<Props> = ({ user }) => {
       <input className='text-input' type="text"  name="skills" value={formData.skills} onChange={handleChange}/>
     </div>
 
-    <div className='buttonContainer'>
+    <div className='button-cont-profile'>
       <button type="submit" onClick={onSubmit}>Save</button>
     </div>
   </div>

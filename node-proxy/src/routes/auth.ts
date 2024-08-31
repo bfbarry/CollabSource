@@ -44,7 +44,7 @@ router.post('/login', async (req: Request, res: Response) => {
     try {
         const response: AxiosResponse<string> = await axiosBase.post(`${BASE_PATH}/login`, { email, password });
         const id = response.data
-        const token = jwt.sign({ id }, secretKey, { expiresIn: '1h' });
+        const token = jwt.sign({ id }, secretKey, { expiresIn: '3h' });
         res.status(200).json({ token, userId: response.data });
     } catch (error) {
         console.log(error)

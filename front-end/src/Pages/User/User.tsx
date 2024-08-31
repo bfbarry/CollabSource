@@ -21,19 +21,20 @@ const User:FC = () => {
   const [projects, setProjects] = useState<ProjectWId[]>([]);
   const [pageNum, setPageNum] = useState(1)
   const [hasNext, setHasHext] = useState<Boolean>(false)
-  
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
     const fetch = async () => {
       try {
         const headers = new AxiosHeaders()
         headers.Authorization = loggedIn ? token : "public"
-        console.log(headers)
   
         const res = await axiosBase.get(`/user/${id}`, { headers })
         setUser(res.data.data)
-        console.log(res.data.data) 
       } catch (err) {
         console.log(err) 
+      } finally {
+        setLoading(false)
       }
     }
     fetch()
@@ -51,6 +52,9 @@ const User:FC = () => {
     return
   }, [id, pageNum])
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
   return (
     <div>
       <div className='name-header'>
@@ -71,17 +75,22 @@ const User:FC = () => {
           <hr/>
           <div id="explore-projects-section">
             <div id="project-tiles-section">
-            {projects.map((value) => (
-              <ProjectTile 
-              key={value._id}
-              _id={value._id}
-              name={value.name} 
-              description={value.description} 
-              category={value.category} 
-              tags={value.tags} 
-              seeking={value.seeking}
-              />
-              ))}
+              {
+                projects.length > 0 ?
+                projects.map((value) => (
+                  <ProjectTile 
+                  key={value._id}
+                  _id={value._id}
+                  name={value.name} 
+                  description={value.description} 
+                  category={value.category} 
+                  tags={value.tags} 
+                  seeking={value.seeking}
+                  />
+                  ))
+                :
+                <div className='no-projects'>no projects</div>
+              }
             </div>
           </div>
           <div className='navigationContainer'>

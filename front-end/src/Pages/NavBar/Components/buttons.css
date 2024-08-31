@@ -27,3 +27,18 @@
 #sign-up-button:hover {
     cursor: pointer;
 }
+
+#sign-out-button {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 33px;
+    color: white;
+    background-color: #2580ff;
+    border: none;
+    border-radius: 10px;
+}
+
+#sign-out-button:hover {
+    cursor: pointer;
+}
