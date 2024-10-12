@@ -10,11 +10,23 @@ import User from './Pages/User/User'
 
 import {
   createBrowserRouter,
+  Outlet,
   RouterProvider,
 } from "react-router-dom";
+import { AuthContextProvider } from './context/AuthContext';
 import Explore from './Pages/Explore/Explore';
 
+const AppLayout = () => (
+  <div>
+    <NavBar />
+    <Outlet />
+  </div>
+);
+
 const router = createBrowserRouter([
+  {
+    element: <AppLayout />,
+    children: [
   {
     path: "/",
     element: <HomePage/>,
@@ -45,16 +57,17 @@ const router = createBrowserRouter([
     element: <User/>,
     errorElement: <ErrorPage/>
   }
-]);
+]}]);
 
 function App() {
 
   return (
     <div>
-      <NavBar/>
-      <RouterProvider router={router}/>
+      <AuthContextProvider>
+        {/* <NavBar/> */}
+        <RouterProvider router={router}/>
+      </AuthContextProvider>
     </div>
-    
   );
 }
 

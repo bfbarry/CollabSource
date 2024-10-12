@@ -10,19 +10,19 @@ interface DecodedToken {
   exp: number;
 }
 
-
 const authenticateJWT = (req: IRequest, res: Response, next: NextFunction) => {
   const token = req.header('Authorization')
   if (token === undefined || token === "public") {
     req.id = "public"
+    req.email = "public";
     next();
     return
   }
 
   try {
-    // TODO add "public" header to handle users vs guests (e.g, get projects on landing page)
     const decoded = jwt.verify(token, secretKey) as DecodedToken;
     req.id =  decoded.id ; // add more fields as needed
+    req.email = decoded.email;
     next();
   } catch (err) {
     res.status(401).json({ message: 'Access token is invalid' });

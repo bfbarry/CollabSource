@@ -6,7 +6,7 @@ const SignOutButton: React.FC = () => {
     const { authDispatch } = useContext(AuthContext)
 
     const signOut = () => {
-        localStorage.removeItem("auth_context_state");
+        // localStorage.removeItem("auth_context_state");
         authDispatch({ type: 'LOG_OUT' })
     }
 

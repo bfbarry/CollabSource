@@ -92,7 +92,6 @@ const CreateProject:React.FC = () => {
     } catch (err) {
       setSubmitError("An error occurred")
       console.log(postData)
-      console.log("hello error")
     }
   }
 

@@ -32,6 +32,8 @@
     padding: 0.5vw;
     background-color: white;
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
 }
 
 .tagContainer {
@@ -52,4 +54,56 @@
     color: white;
 }
 
+#requestButton {
+width: 200px;
+height: 45px;
+background: #46D78C;
+border-radius: 10px;
+font-family: 'Poppins';
+font-style: normal;
+font-weight: 600;
+font-size: 17px;
+line-height: 30px;
+border-width: 0px;
+}
 
+#requestButton:hover {
+    cursor: pointer;
+    }
+
+#requestButtonContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ProjectMembers {
+    display: flex;
+    flex-direction: column;
+}
+
+#MembershipRequests { 
+    width: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#MembershipRequests > a {
+    padding-right: 10px;
+}
+
+#MembershipRequests > button {
+    margin-right: 10px;
+    background: #46D78C;
+    border-width: 0px;
+    border-radius: 10px;
+    font-family: 'Poppins';
+    font-style: normal;
+    font-size: 17px;
+}
+
+#MembershipRequests > button:hover {
+    cursor: pointer;
+}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	// "github.com/bfbarry/CollabSource/back-end/errors"
 	"reflect"
@@ -33,7 +34,7 @@ func init() {
 	defaultProjectController = &ProjectController{repository: repository.GetMongoRepository()}
 }
 
-func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request) {
+func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Request, UUID string) {
 
 	projectEntity := model.Project{}
 	if err := json.NewDecoder(r.Body).Decode(&projectEntity); err != nil {
@@ -45,6 +46,8 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid payload"))
 		return
 	}
+	projectEntity.DateCreated = time.Now()
+	projectEntity.OwnerEmail = UUID
 	id, err := self.repository.Insert(PROJECT_COLLECTION, projectEntity)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("server error on insert"))
@@ -54,16 +57,17 @@ func (self *ProjectController) CreateProject(w http.ResponseWriter, r *http.Requ
 	responseEntity.SendRequest(w, http.StatusOK, []byte(id.Hex()))
 }
 
-func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, userUUID string) {
+func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, userUUID string, userId string) {
 	// var op errors.Op = "controllers.GetProjectByID"
 	// TODO return different data if member/admin
-	projectEntity := &model.Project{}
 
 	ObjId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
 		return
 	}
+
+	projectEntity := &model.Project{}
 
 	mongoErr := self.repository.FindByID(PROJECT_COLLECTION, ObjId, projectEntity)
 	//error handling for StatusNotFound
@@ -75,7 +79,37 @@ func (self *ProjectController) GetProjectByID(w http.ResponseWriter, id string, 
 		return
 	}
 
-	jsonResponse, jsonerr := json.Marshal(projectEntity)
+	var jsonResponse []byte
+	var jsonerr error
+
+	if userUUID == "public" {
+		jsonResponse, jsonerr = json.Marshal(projectEntity.BuildProjectResponse(true, false, false, false))
+	} else if projectEntity.OwnerEmail == userUUID {
+		jsonResponse, jsonerr = json.Marshal(projectEntity.BuildProjectResponse(false, false, true, false))
+	} else {
+		isMember := false
+		for _, member := range projectEntity.Members {
+			if member.UserId == userId {
+				jsonResponse, jsonerr = json.Marshal(projectEntity.BuildProjectResponse(false, true, false, false))
+				isMember = true
+				break
+			}
+		}
+		if !isMember {
+			isPendingMember := false
+			for _, pendingMember := range projectEntity.MemberRequests {
+				if pendingMember.Email == userUUID {
+					jsonResponse, jsonerr = json.Marshal(projectEntity.BuildProjectResponse(false, false, false, true))
+					isPendingMember = true
+					break
+				}
+			}
+			if !isPendingMember {
+				jsonResponse, jsonerr = json.Marshal(projectEntity.BuildProjectResponse(true, false, false, false))
+			}
+		}
+	}
+
 	if jsonerr != nil {
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
@@ -265,22 +299,19 @@ func (self *ProjectController) GetProjects(w http.ResponseWriter, r *http.Reques
 }
 
 func (self *ProjectController) SendProjectRequest(w http.ResponseWriter, r *http.Request, userUUID string) {
+	if userUUID == "public" {
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
+		return
+	}
 	projectRequestEntity := model.ProjectRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&projectRequestEntity); err != nil {
 		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
 		return
 	}
-	
-	//check userID exists
-	// TODO should ProjectRequest fields be strings?
-	// userId, err := primitive.ObjectIDFromHex(projectRequestEntity.UserId)
-	// if err != nil {
-	// 	responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
-	// 	return
-	// }
+
 	userEntity := &model.User{}
 	mongoErr := self.repository.FindByID(USER_COLLECTION, projectRequestEntity.UserId, userEntity)
-	if reflect.DeepEqual(*userEntity, model.User{}) {
+	if reflect.DeepEqual(*userEntity, model.User{}) || userEntity.Email != userUUID {
 		responseEntity.SendRequest(w, http.StatusNotFound, []byte("not found"))
 		return
 	}
@@ -288,13 +319,133 @@ func (self *ProjectController) SendProjectRequest(w http.ResponseWriter, r *http
 		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
 		return
 	}
-	//check projectID exists
+
+	request := bson.D{
+		{Key: "userId", Value: projectRequestEntity.UserId.Hex()},
+		{Key: "name", Value: userEntity.Name},
+		{Key: "email", Value: userUUID},
+	}
+
+	update := bson.D{
+		{Key: "$push", Value: bson.D{
+			{Key: "memberRequests", Value: request}},
+		}}
+	updatedCount, updateMongoErr := self.repository.UpdateWithKeys(PROJECT_COLLECTION, projectRequestEntity.ProjectId, update)
+	if updateMongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if updatedCount == 0 {
+		responseEntity.SendRequest(w, http.StatusNoContent, []byte("no change"))
+		return
+	}
+
+	responseEntity.SendRequest(w, http.StatusCreated, []byte("Success"))
 }
 
-func (self *ProjectController) GetProjectRequests(w http.ResponseWriter, r *http.Request, projectId string, userUUID string) {
-	//check if UUID == Project(projectId).OwnerId
+func (self *ProjectController) RespondToProjectRequest(w http.ResponseWriter, r *http.Request, id string, userUUID string) {
+
+	ObjId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		responseEntity.SendRequest(w, http.StatusUnprocessableEntity, []byte("Invalid Object ID"))
+		return
+	}
+
+	project := &model.Project{}
+	var mongoErr error
+	mongoErr = self.repository.FindByID(PROJECT_COLLECTION, ObjId, project)
+	if reflect.DeepEqual(*project, model.Project{}) {
+		responseEntity.SendRequest(w, http.StatusNotFound, []byte("project not found"))
+		return
+	}
+	if mongoErr != nil {
+		responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+		return
+	}
+	if project.OwnerEmail != userUUID {
+		responseEntity.SendRequest(w, http.StatusUnauthorized, []byte("unauthorized"))
+		return
+	}
+
+	projectRequestAdmission := model.ProjectRequestAdmission{}
+	if err := json.NewDecoder(r.Body).Decode(&projectRequestAdmission); err != nil {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid JSON"))
+		return
+	}
+
+	if projectRequestAdmission.Admission == "accepted" {
+
+		removeUpdate := bson.D{
+			{Key: "$pull", Value: bson.D{
+				{Key: "memberRequests", Value: bson.D{
+					{Key: "userId", Value: projectRequestAdmission.UserId},
+					{Key: "name", Value: projectRequestAdmission.Name},
+				}},
+			}},
+		}
+
+		var updatedCount int64
+		var updateMongoErr error
+		updatedCount, updateMongoErr = self.repository.UpdateWithKeys(PROJECT_COLLECTION, ObjId, removeUpdate)
+		if updateMongoErr != nil {
+			responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+			return
+		}
+		if updatedCount == 0 {
+			responseEntity.SendRequest(w, http.StatusNoContent, []byte("no change"))
+			return
+		}
+
+		updateRequest := bson.D{
+			{Key: "userId", Value: projectRequestAdmission.UserId},
+			{Key: "name", Value: projectRequestAdmission.Name},
+		}
+
+		insertUpdate := bson.D{
+			{Key: "$push", Value: bson.D{
+				{Key: "members", Value: updateRequest}},
+			}}
+
+		updatedCount, updateMongoErr = self.repository.UpdateWithKeys(PROJECT_COLLECTION, ObjId, insertUpdate)
+		if updateMongoErr != nil {
+			responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+			return
+		}
+		if updatedCount == 0 {
+			responseEntity.SendRequest(w, http.StatusNoContent, []byte("no change"))
+			return
+		}
+
+		responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
+
+	} else if projectRequestAdmission.Admission == "denied" {
+
+		update := bson.D{
+			{Key: "$pull", Value: bson.D{
+				{Key: "memberRequests", Value: bson.D{
+					{Key: "userId", Value: projectRequestAdmission.UserId},
+					{Key: "name", Value: projectRequestAdmission.Name},
+				}},
+			}},
+		}
+
+		updatedCount, updateMongoErr := self.repository.UpdateWithKeys(PROJECT_COLLECTION, ObjId, update)
+		if updateMongoErr != nil {
+			responseEntity.SendRequest(w, http.StatusInternalServerError, []byte("Something went wrong"))
+			return
+		}
+		if updatedCount == 0 {
+
+			responseEntity.SendRequest(w, http.StatusOK, []byte("no change"))
+			return
+		}
+		responseEntity.SendRequest(w, http.StatusOK, []byte("Success"))
+
+	} else {
+		responseEntity.SendRequest(w, http.StatusBadRequest, []byte("Invalid Payload"))
+	}
 }
 
-func (self *ProjectController) RespondToProjectRequest(w http.ResponseWriter, r *http.Request, projectRequestId string, userUUID string) {
-	//check if UUID == Project(projectId).OwnerId
-}
+// func (self *ProjectController) GetProjectRequests(w http.ResponseWriter, r *http.Request, projectId string, userUUID string) {
+// 	//check if UUID == Project(projectId).OwnerId
+// }

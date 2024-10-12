@@ -46,6 +46,7 @@ const LogInModal: React.FC<Props> = ({SetShowLogIn} )=> {
                 passwordError: "" 
             })
         }
+        console.log("starting log in")
         login(formData.email, formData.password)
         if (logInError === '') {
             SetShowLogIn(false)

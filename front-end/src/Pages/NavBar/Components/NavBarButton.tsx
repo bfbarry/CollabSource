@@ -1,5 +1,6 @@
 import React from 'react';
 import '../NavBar.css';
+import { NavLink } from 'react-router-dom';
 
 interface Props {
     text: string;
@@ -8,7 +9,7 @@ interface Props {
 
 const NavBarButton: React.FC<Props> = ({text, pathToPage}) => { 
     return(
-        <a href={pathToPage}>{text}</a>
+        <NavLink to={pathToPage} className="NavLink">{text}</NavLink>
     );
 }
 

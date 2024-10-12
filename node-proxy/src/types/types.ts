@@ -35,3 +35,14 @@ export interface PaginatedResponseBody<T> {
 export interface IRequest<P = { id: string }, ResBody = unknown, ReqBody = unknown, ReqQuery extends ParsedQs = ParsedQs> extends Request<P, ResBody, ReqBody, ReqQuery> {
   id: string;
 }
+
+export interface ProjectRequest {
+    userId: string,
+    projectI: string
+}
+
+export interface ProjectResponse {
+    userId: string,
+    name: string,
+    admission: string
+}

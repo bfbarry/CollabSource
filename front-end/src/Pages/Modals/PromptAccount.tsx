@@ -1,8 +1,4 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useContext, useState } from 'react';
-import axiosBase from '../../config/axiosConfig'
-import { AuthContext } from '../../context/AuthContext';
-import LogInButton from '../NavBar/Components/LogInButton';
-import SignUpButton from '../NavBar/Components/SignUpButton';
+import React, { Dispatch, SetStateAction } from 'react';
 import './Modal.css'
 
 
