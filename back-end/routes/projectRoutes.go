@@ -36,6 +36,7 @@ func (self *ProjectRouter) initiateProjectRoutes() {
 func (self *ProjectRouter) project(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	UUID := r.Header.Get("UUID")
+	userId := r.Header.Get("userId")
 	// TODO: return
 	// var err *errors.Error
 	// var op errors.Op = "routes.project"
@@ -43,10 +44,10 @@ func (self *ProjectRouter) project(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		fmt.Println("GET /project")
-		self.controller.GetProjectByID(w, id, UUID)
+		self.controller.GetProjectByID(w, id, UUID, userId)
 	case http.MethodPost:
 		fmt.Println("POST /project")
-		self.controller.CreateProject(w, r)
+		self.controller.CreateProject(w, r, UUID)
 	case http.MethodPatch:
 		fmt.Println("PATCH /project")
 		self.controller.UpdateProject(w, id, r, UUID)
@@ -77,11 +78,11 @@ func (self *ProjectRouter) projectRequests(w http.ResponseWriter, r *http.Reques
 	case http.MethodPost:
 		fmt.Println("POST /project_request")
 		self.controller.SendProjectRequest(w, r, UUID)
-	case http.MethodGet:
-		fmt.Println("GET /project_request")
-		self.controller.GetProjectRequests(w, r, id, UUID)
 	case http.MethodPatch:
-		fmt.Println("GET /project_request")
-		self.controller.GetProjectRequests(w, r, id, UUID)
+		fmt.Println("Patch /project_request")
+		self.controller.RespondToProjectRequest(w, r, id, UUID)
+		// case http.MethodPatch:
+		// 	fmt.Println("GET /project_request")
+		// 	self.controller.GetProjectRequests(w, r, id, UUID)
 	}
 }
