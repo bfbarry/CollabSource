@@ -11,7 +11,9 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 30%;
+    width: 40%;
+    font-size: 18px;
+    font-family: Helvetica;
 }
 
 #left-nav-items > .NavLink {
@@ -38,6 +40,7 @@
     font-size: 40px;
     line-height: 60px;
     color: #4646D7;
+    font-family: Helvetica;
 }
 
 .svg-cont-prof {

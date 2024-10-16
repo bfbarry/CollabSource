@@ -20,7 +20,6 @@ const NavBar: React.FC = () => {
                 </nav>
                     <NavBarButton text="Explore" pathToPage="/explore"/>
                     <NavBarButton text="About" pathToPage=""/>
-                    <NavBarButton text="Other" pathToPage=""/>
             </div>
             {!loggedIn ?
                 <div id="right-nav-items">

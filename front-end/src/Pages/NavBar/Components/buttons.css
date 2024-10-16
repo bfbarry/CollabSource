@@ -1,6 +1,8 @@
 #logInButton{
+    font-family: 'Helvetica';
+    font-style: normal;
     font-weight: 700;
-    font-size: 22px;
+    font-size: 18px;
     line-height: 33px;
     color: #4646D7;
     background-color: white;
@@ -14,14 +16,16 @@
 }
 
 #sign-up-button {
+    font-family: 'Helvetica';
     font-style: normal;
     font-weight: 700;
-    font-size: 22px;
+    font-size: 18px;
     line-height: 33px;
     color: white;
     background-color: #4646D7;
     border: 2px solid blue;
     border-radius: 10px;
+    padding: 0px 15px 0px 15px;
 }
 
 #sign-up-button:hover {
