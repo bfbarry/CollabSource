@@ -15,6 +15,7 @@ import {
 } from "react-router-dom";
 import { AuthContextProvider } from './context/AuthContext';
 import Explore from './Pages/Explore/Explore';
+import AboutPage from './Pages/AboutPage/AboutPage';
 
 const AppLayout = () => (
   <div>
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/about",
-    element: <div>about</div>,
+    element: <AboutPage/>,
     errorElement: <ErrorPage/>
   },
   {
