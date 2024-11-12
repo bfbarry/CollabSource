@@ -6,7 +6,7 @@ import CreateProject from './Pages/CreateProject/CreateProject';
 import ProjectPage from './Pages/ProjectPage/ProjectPage';
 import ErrorPage from './error-page';
 import User from './Pages/User/User'
-
+import About from './Pages/HomePage/About';
 
 import {
   createBrowserRouter,
@@ -39,7 +39,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/about",
-    element: <div>about</div>,
+    element: <About/>,
     errorElement: <ErrorPage/>
   },
   {

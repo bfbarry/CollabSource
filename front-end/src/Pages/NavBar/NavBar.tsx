@@ -16,11 +16,14 @@ const NavBar: React.FC = () => {
         <div id="nav-bar">
             <div id="left-nav-items">
                 <nav>
-                <NavLink  to="/" className="NavLink"> CollabSource </NavLink>
+                <h1 className='title'>
+                    <NavLink  to="/" className="NavLink nav-link-title">
+                        CollabSource 
+                    </NavLink>
+                </h1>
                 </nav>
                     <NavBarButton text="Explore" pathToPage="/explore"/>
-                    <NavBarButton text="About" pathToPage=""/>
-                    <NavBarButton text="Other" pathToPage=""/>
+                    <NavBarButton text="About" pathToPage="/about"/>
             </div>
             {!loggedIn ?
                 <div id="right-nav-items">
@@ -29,9 +32,9 @@ const NavBar: React.FC = () => {
                 </div>
                 :
                 <div id="right-nav-items">
-                    <a className="svg-cont-prof" href={`/user/${userID}`}>
+                    <NavLink className="svg-cont-prof" to={`/user/${userID}`}>
                         <ProfileSVG className='prof-pic-nav'/>
-                    </a>
+                    </NavLink>
                     <SignOutButton/>
                 </div>
             }

@@ -9,7 +9,7 @@ interface Props {
 
 const NavBarButton: React.FC<Props> = ({text, pathToPage}) => { 
     return(
-        <NavLink to={pathToPage} className="NavLink">{text}</NavLink>
+        <NavLink to={pathToPage} className="NavLink nav-link-other">{text}</NavLink>
     );
 }
 

@@ -1,5 +1,6 @@
 {
     "CONN_STR" : "mongodb://root:example@localhost:27017",
+    "PROD": "mongodb+srv://bfbarry:NVvxADR9nxKiFV65@collabsourceclusterdev.buyo3fu.mongodb.net/?retryWrites=true&w=majority",
     "N_PROJECTS" : 100,
     "N_USERS" : 100
 }

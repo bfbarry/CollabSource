@@ -29,6 +29,9 @@
 }
 
 .project-tile-button {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
     background: none;
 	color: inherit;
 	border: none;
@@ -36,8 +39,6 @@
 	font: inherit;
 	cursor: pointer;
 	outline: inherit;
-    /* display: flex;
-    flex-direction: column; */
 }
 
 .plus-sign {
@@ -50,20 +51,47 @@
     fill: white;
 }
 
+.project-title {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
 .description-container{
     display: -webkit-box;
     -webkit-line-clamp: 4;
     line-clamp: 4;
     -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 5px;
+    overflow:scroll;
+    border: 0px;
+    text-overflow:ellipsis;
+    height: 200px;
+    scrollbar--width: 1px;
+    /* margin-bottom: 5px; */
 }
 
+
+  
+.description-container::-webkit-scrollbar {
+width: 8px; /* Set the width for the scrollbar */
+background-color: rgba(0, 0, 0, 0); /* Make the surrounding area transparent */
+}
+
+.description-container::-webkit-scrollbar-thumb {
+background-color: rgba(0, 0, 0, 0.5); /* Set thumb to semi-transparent */
+border-radius: 0px; /* Optional: round the thumb edges */
+}
+
+.description-container::-webkit-scrollbar-track {
+background-color: rgba(0, 0, 0, 0); /* Make the track transparent */
+border-radius: 0px; /* Optional: round the track edges */
+}
+/*
 .tag-array {
     text-overflow: ellipsis;
     overflow: hidden; 
     width: 100%; 
     float: left;
     white-space: nowrap;
-}
+} */

@@ -7,6 +7,7 @@ import CreateProjectTile from '../Common/ProjectTiles/CreateProjectTile';
 import ProjectTile from '../Common/ProjectTiles/ProjectTile';
 import { Filters } from "../../types/project";
 import SearchBar from '../Common/SearchBar';
+import { NavLink } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   
@@ -53,7 +54,7 @@ const HomePage: React.FC = () => {
         ))}
         </div>
         <div>
-          <a className='more-projects-link' href='/explore'>{moreText}</a>
+          <NavLink className='more-projects-link' to='/explore'>{moreText}</NavLink>
         </div>
       </div>
       <div id="scroll-container">

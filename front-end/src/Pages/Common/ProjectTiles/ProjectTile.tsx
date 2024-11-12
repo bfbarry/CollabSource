@@ -12,16 +12,18 @@ const ProjectTile: React.FC<ProjectWId> = ({name, description, category, tags,_i
       <button 
       onClick={() => {navigate(`/project/${_id}`)}} 
       className='project-tile-button'>
-        <h3>{name}</h3>
+        <div className='project-title'>
+          <h3>{name}</h3>
+        </div>
         <div className='description-container'>
           {description}
         </div>
-        <div className='tag-array'>
+        {/* <div className='tag-array'> */}
           <b>Seeking:</b> {seeking.join(', ')}
-        </div>
-        <div className='tag-array'>
+        {/* </div> */}
+        {/* <div className='tag-array'> */}
           <b>Tags:</b> {tags.join(', ')}
-        </div>
+        {/* </div> */}
       </button>
     </div>
   );
